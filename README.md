@@ -86,7 +86,7 @@ agendaReflex/
 │       └── main.py                                # Punto de entrada de Reflex (crea la app, importa páginas y monta FastAPI como backend)
 │
 ├── .env                                           # Variables de entorno sensibles (JWT, DB, etc.)
-├── poetry.lock                                    # Archivo de bloqueo de dependencias de Poetry
+├── uv.lock                                        # Archivo de bloqueo de dependencias de UV
 ├── pyproject.toml                                 # Archivo de configuración raíz: dependencias, scripts, metadata del proyecto
 └── rxconfig.py                                    # Configuración específica de Reflex (WebSocket CORS, app name, frontend settings)
 ```
@@ -284,4 +284,5 @@ Este tutorial en vídeo cubre paso a paso distintos aspectos del desarrollo de a
 
 Si tienes dudas, grita, no importa.  
 Este README es nuestra brújula. 🧭
+
 
