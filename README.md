@@ -3,7 +3,7 @@
 Este proyecto está construido con:
 
 - ✅ **[FastAPI](https://fastapi.tiangolo.com/)** como backend (API REST)
-- ✅ **[Reflex](https://reflex.dev/docs)** como interfaz de usuario (frontend)
+- ✅ **[Reflex](https://reflex.dev/docs/getting-started/introduction/)** como interfaz de usuario (frontend)
 - ✅ **[PostgreSQL](https://www.postgresql.org/docs/)**  como base de datos relacional
 
 ## 📁 Estructura general del proyecto
@@ -284,5 +284,6 @@ Este tutorial en vídeo cubre paso a paso distintos aspectos del desarrollo de a
 
 Si tienes dudas, grita, no importa.  
 Este README es nuestra brújula. 🧭
+
 
 
