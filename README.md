@@ -267,6 +267,7 @@ Este comando:
 ### 🔗 Tutorial completo de Reflex por *MoureDev*
 
 📺 [Repositorio del tutorial](https://github.com/mouredev/python-web/)
+📺 [Otro Tutorial] https://www.youtube.com/watch?v=ITOZkzjtjUA&t=6835s
 
 ```text
 Este tutorial en vídeo cubre paso a paso distintos aspectos del desarrollo de aplicaciones web utilizando Reflex.
