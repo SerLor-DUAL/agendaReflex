@@ -5,6 +5,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from reflex.model import Model
+
+# Import all models so they are registered with SQLModel metadata
+from src.app.models.user.model import User
+from src.app.models.event.model import Event
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -18,13 +24,24 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Model.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+# We only want to include tables defined in our models.
+ALLOWED_TABLES = Model.metadata.tables.keys()
+print("TABLAS PERMITIDAS:", ALLOWED_TABLES)
+
+def include_object(obj, name, type_, reflected, compare_to):
+    if name in ALLOWED_TABLES:
+        print(f"Included table: {name}")
+        return True
+    else:
+        print(f"Excluded table: {name}")
+        return False
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -43,6 +60,9 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
+        include_object=include_object,
+        compare_type=True,
+        compare_server_default=True,
         dialect_opts={"paramstyle": "named"},
     )
 
@@ -65,7 +85,11 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, 
+            target_metadata=target_metadata,
+            include_object=include_object,
+            compare_type=True,
+            compare_server_default=True,
         )
 
         with context.begin_transaction():
