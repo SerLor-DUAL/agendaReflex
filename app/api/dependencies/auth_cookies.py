@@ -6,7 +6,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession                       # Im
 from jose import JWTError                                                   # Importing JWTError for handling JWT decoding errors
 from ...db.db_handler import get_session                                    # Importing the database session dependency
 from typing import Optional                                                 # Importing Optional for type hints
-from ...api.utils.jwt import jwt_handler as jwt                                 # Importing the JWT handler for token operations
+from ..utils.jwt import jwt_handler as jwt                                 # Importing the JWT handler for token operations
 from ...models.user.model import User                                       # Importing the DB User model
 from ...services.user_service import UserService as us                      # Importing the UserService for user operations
 import os                                                                   # Importing os for accessing environment variables
