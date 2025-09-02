@@ -9,7 +9,7 @@ from ...models.user.DTOs import RefreshResponse, TokenResponse, MessageResponse 
 from ...models.user.model import User                                                         # Importing the DB User model
 from ...models.user.DTOs import UserLogin, UserCreate, UserRead                               # Importing DTOs for validating input/output of user data
 from fastapi.security import OAuth2PasswordRequestForm                                        # Importing OAuth2PasswordRequestForm for token authentication
-from ...utils.jwt import jwt_handler as jwt                                                   # Importing the JWT handler for token operations
+from ...api.utils.jwt import jwt_handler as jwt                                                   # Importing the JWT handler for token operations
 from ...api.dependencies.auth_cookies import auth_cookies_handler as ach                      # Importing the dependency to manage the authentication cookies
 from ...services.user_service import UserService as us                                        # Importing the user service for user-related operations
 from ...db.db_handler import get_session                                                      # Importing the get_session function to manage database sessions

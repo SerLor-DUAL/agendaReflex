@@ -203,3 +203,4 @@ cython_debug/
 source/
 __pycache__/
 *.pyc
+/alembic/versions

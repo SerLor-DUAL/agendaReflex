@@ -6,10 +6,14 @@ from datetime import datetime                                                   
 from typing import Optional                                                      # Importing Optional for type hints
 from ...config import users_table_settings as ut                            # Importing users table settings
 
+import reflex as rx
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 
 # NOTE: This class model represents an user in the database
-class User(SQLModel, table=True):
+# Se cambia la clase para que sea rx.Model y no SQLModel, para que Reflex la pueda usar
+# class User(SQLModel, table=True):
+class User(rx.Model, table=True):
     
     # Table name
     __tablename__ = ut.USERS_TABLE                
