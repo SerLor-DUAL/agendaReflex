@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 # Import CORS middleware to handle cross-origin requests
-from .utils.cors import setup_cors, is_origin_allowed
+from .api.utils.cors import setup_cors, is_origin_allowed
 
 # Import APIs endopints
 from .api.routes import events, events_admin, users_admin, auth

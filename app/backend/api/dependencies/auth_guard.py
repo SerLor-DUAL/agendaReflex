@@ -4,7 +4,7 @@
 from fastapi import Depends, HTTPException, status                  # Importing FastAPI components for dependency injection
 from fastapi.security import OAuth2PasswordBearer                   # Importing OAuth2PasswordBearer for token-based authentication
 from jose import JWTError                                           # Importing JWTError for handling JWT decoding errors
-from ...utils.jwt import jwt_handler as jwt                         # Importing the JWT handler for token operations
+from ..utils.jwt import jwt_handler as jwt                         # Importing the JWT handler for token operations
 from ...db.db_handler import get_session                            # Importing the database session dependency
 from ...services.user_service import UserService as us              # Importing the UserService for user operations
 from ...models.user.model import User                               # Importing the DB User model

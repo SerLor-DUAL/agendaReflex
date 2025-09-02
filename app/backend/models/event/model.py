@@ -7,11 +7,14 @@ from typing import Optional                                                     
 from ...config import events_table_settings as et                                  # Importing events table settings
 from ...config import users_table_settings as ut                                   # Importing users table settings for using the fk
 
+import reflex as rx
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 
 # NOTE: This class model represents an event in the database
-class Event(SQLModel, table=True):
-    
+# Se cambia la clase para que sea rx.Model y no SQLModel, para que Reflex la pueda usar
+#class Event(SQLModel, table=True):
+class Event(rx.Model, table=True): 
     # Table name
     __tablename__ = et.EVENTS_TABLE
     

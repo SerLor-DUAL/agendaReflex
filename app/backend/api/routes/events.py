@@ -4,12 +4,12 @@
 from fastapi import APIRouter, HTTPException, status, Depends          # Importing FastAPI components for routing and error handling
 from typing import Optional                                            # Importing Optional for type hints
 from ...db.db_handler import get_session                               # Importing the get_session function to manage database sessions
-from ...api.routes.auth import api_auth_get_me_cookie                  # Importing the dependency to get the current user from the generated token
+from .auth import api_auth_get_me_cookie                  # Importing the dependency to get the current user from the generated token
 from sqlmodel.ext.asyncio.session import AsyncSession                  # Importing AsyncSession for asynchronous database operations
 from ...services.event_service import EventService as es               # Importing the event service for event-related operations                     
 from ...models.event.model import Event                                # Importing the DB Event model
 from ...models.user.model import User                                  # Importing the DB User model
-from ...models.event.DTOs import EventCreate, EventRead, EventUpdate   # Importing DTOs for user input/output validation and transformation                
+from ...models.event.DTOs import EventCreate, EventRead, EventUpdate   # Importing DTOs for user input/output validation and transformation
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError             # TODO: Cambiar por funciones SQLMODEL (Importing SQLAlchemy exceptions)
 
 # Create a new API router for user-related endpoints
