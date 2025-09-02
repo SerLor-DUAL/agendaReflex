@@ -8,8 +8,8 @@ from alembic import context
 from reflex.model import Model
 
 # Import all models so they are registered with SQLModel metadata
-from app.models.user.model import User
-from app.models.event.model import Event
+from app.backend.models.user.model import User
+from app.backend.models.event.model import Event
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
