@@ -20,7 +20,10 @@ front_url = f"{base_url}{frontend_port}"
 
 config = rx.Config(
     # Name of your Reflex app (can be anything)
-    app_name="agendaReflex",                
+    app_name="agendaReflex",
+    
+    # Database URL   
+    db_url=os.getenv("DB_URL"),              
 
     # Path to the module where your Reflex app is defined
     # Reflex will import this and look for the rx.App() instance
