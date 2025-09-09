@@ -1,6 +1,6 @@
 # app/backend/models/user/DTOs/create.py
 
-from sqlmodel import Field                          # Importing Field for defining model fields
+from pydantic import Field                          # Importing Field for defining model fields
 from .base import UserBase                          # Importing UserBase
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
