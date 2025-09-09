@@ -1,5 +1,6 @@
 import reflex as rx
-from ..services.user_service import fetch_users
+
+from app.backend.models.user.model import User
 
 class UserState(rx.State):
     users: list[dict] = []
@@ -8,19 +9,32 @@ class UserState(rx.State):
     mounted: bool = False
 
     def on_mount(self):
-        # Solo en cliente, inicializamos fetch
         self.mounted = True
-        # Disparamos el evento (decorado) directamente
-        UserState.load_users()
-
-    @rx.event  # ← decorador que convierte esto en un EventHandler válido
-    async def load_users(self):
-        # Este código corre como coroutine, pero Reflex lo gestiona
-        self.loading = True
-        try:
-            data, msg = await fetch_users()
-            self.users = data
-            self.message = msg
-        except Exception as e:
-            self.message = f"Error inesperado: {e}"
+        
+        # Cleaning values on mount
+        self.users = []       
+        self.message = ""     
         self.loading = False
+
+    # Decorator that converts this into a valid EventHandler
+    @rx.event  
+    def load_users(self):
+        if self.loading:
+            return  # evita doble fetch
+        self.loading = True
+        self.message = ""
+        self.users = []
+
+        try:
+            with rx.session() as session:
+                users_query = session.exec(User.select())
+                self.users = [{"id": u.id, "nickname": u.nickname} for u in users_query]
+
+            self.message = f"{len(self.users)} usuario(s) cargado(s) correctamente."
+            
+        except Exception as e:
+            self.users = []
+            self.message = f"Error al cargar usuarios: {str(e)}"
+            
+        finally:
+            self.loading = False

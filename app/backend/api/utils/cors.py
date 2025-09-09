@@ -8,25 +8,27 @@ from fastapi.middleware.cors import CORSMiddleware      # Importing CORSMiddlewa
 # NOTE: This function is used to configure CORS (Cross-Origin Resource Sharing) for the FastAPI application.
 def setup_cors(app: FastAPI):
     """ Configure CORS middleware for FastAPI app based on env vars: CORS_ORIGINS, BACKEND_PORT, FRONTEND_PORT."""
+    
     backend_port = os.getenv("BACKEND_PORT", "8000")
     frontend_port = os.getenv("FRONTEND_PORT", "3000")
 
     # Get raw origins from env, split and strip
-    cors_origins_raw = os.getenv("CORS_ORIGINS", "*")
+    cors_origins_raw = os.getenv("CORS_ORIGINS", "localhost")
     cors_bases = [o.strip().replace("http://", "").replace("https://", "") for o in cors_origins_raw.split(",") if o.strip()]
 
-    # If wildcard, allow all origins without credentials
-    if cors_bases == ["*"]:
-        allow_origins = ["*"]
-        allow_credentials = False
-    else:
-        # Build allowed origins with backend port for REST calls
-        allow_origins = [f"http://{base}:{backend_port}" for base in cors_bases]
+    allow_origins = []
+    for base in cors_bases:
+        # Backend origin
+        allow_origins.append(f"http://{base}:{backend_port}")
         
-        # Also allow frontend origins with frontend port (for websockets etc)
-        allow_origins += [f"http://{base}:{frontend_port}" for base in cors_bases if f"http://{base}:{frontend_port}" not in allow_origins]
-        
-        allow_credentials = True
+        # Frontend origin
+        allow_origins.append(f"http://{base}:{frontend_port}")
+    
+    # Remove duplicates if any
+    allow_origins = list(set(allow_origins))   
+
+    # Allow credentials
+    allow_credentials = True
 
     app.add_middleware(
         CORSMiddleware,
@@ -45,7 +47,7 @@ def is_origin_allowed(origin: str | None) -> bool:
         return False
 
     frontend_port = os.getenv("FRONTEND_PORT", "3000")
-    cors_origins_raw = os.getenv("CORS_ORIGINS", "")
+    cors_origins_raw = os.getenv("CORS_ORIGINS", "localhost")
     cors_bases = [o.strip().replace("http://", "").replace("https://", "") for o in cors_origins_raw.split(",") if o.strip()]
 
     parsed = urlparse(origin)
@@ -55,8 +57,5 @@ def is_origin_allowed(origin: str | None) -> bool:
     # Here we expand the filter to accept cors_bases hosts and also localhost and 127.0.0.1 directly (in case they are not in env)
     allowed_hosts = set(cors_bases) | {"localhost", "127.0.0.1"}
 
-    if origin_host in allowed_hosts and origin_port == frontend_port:
-        return True
-
-    return False
+    return origin_host in allowed_hosts and origin_port == frontend_port
 

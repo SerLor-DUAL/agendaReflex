@@ -1,7 +1,7 @@
 # app/backend/models/user/DTOs/login.py
 
 # Import necessary modules
-from sqlmodel import Field                                 # Importing SQLModel for database operations
+from pydantic import Field                                 # Importing SQLModel for database operations
 from typing import Optional                                # Importing Optional for type hints
 from .base import UserBase                                 # Importing UserBase
 
