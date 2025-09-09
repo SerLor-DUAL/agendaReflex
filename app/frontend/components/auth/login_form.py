@@ -29,7 +29,7 @@ def LoginForm():
                 type_="submit",
                 loading=AuthState.loading,
                 width="100%",
-                on_click=AuthState.login.prevent_default,
+                on_click=AuthState.login,
             ),
             
             # Logout button solo si está logueado
@@ -51,5 +51,5 @@ def LoginForm():
         width="400px",
         border_radius="md",
         box_shadow="md",
-        on_submit=AuthState.login.prevent_default
+        on_submit=AuthState.login
     )

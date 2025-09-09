@@ -12,7 +12,7 @@ from ...services.user_service import UserService as us                      # Im
 import os                                                                   # Importing os for accessing environment variables
 
 # Get the SECURE_COOKIES environment variable and convert it to a boolean
-SECURE_COOKIES = os.getenv("SECURE_COOKIES", "false").lower() == "true"
+SECURE_COOKIES = os.getenv("SECURE_COOKIES", "false").lower()
 
 # NOTE: This class handles cookie authentication
 class AuthCookiesHandler:

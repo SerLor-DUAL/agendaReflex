@@ -21,8 +21,8 @@ class AuthState(rx.State):
     # _refresh_token: str | None = None
     
     # Cookies Reflex (serán persistentes en navegador)
-    access_token: str = rx.Cookie(name="access_token", secure=True, same_site="strict")
-    refresh_token: str = rx.Cookie(name="refresh_token", secure=True, same_site="strict")
+    access_token: str = rx.Cookie(name="access_token", secure=False, same_site="strict")
+    refresh_token: str = rx.Cookie(name="refresh_token", secure=False, same_site="strict")
 
     # ----------------- #
     # Events for UI use #
@@ -158,16 +158,19 @@ class AuthState(rx.State):
         # Send request to backend to get current user info
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
-                
-                # If using token-based auth, include the access token in the headers
-                headers = {}
-                if self.access_token:
-                    headers["Authorization"] = f"Bearer {self.access_token}"
+
+                # Get cookies from the current client
+                cookie_header = self.router.headers.cookie or ""
+                cookies = {}
+                for pair in cookie_header.split(";"):
+                    if "=" in pair:
+                        k, v = pair.strip().split("=", 1)
+                        cookies[k] = v
 
                 # If using cookie-based auth, the client will handle cookies automatically
                 response = await client.get(
                     "http://localhost:8000/me-cookie",
-                    headers=headers,
+                    cookies=cookies,
                     timeout=10
                 )
                 
@@ -177,21 +180,26 @@ class AuthState(rx.State):
                 # Save current user info
                 self.current_user = response.json()
                 self.is_authenticated = True
-            
+                
             except httpx.HTTPStatusError as e:
+                print("respuesta: ", e.response.status_code)
+                
                 if e.response.status_code == 401:
                     # Access token expired → try refresh
                     await self.refresh_tokens()
                     
                     # Try again again if refresh was successful
                     await self.check_auth()
-                else:
-                    self.current_user = None
-                    self.is_authenticated = False
+                
+                # else:
+                #     print(e.response.status_code)
+                #     self.current_user = None
+                #     self.is_authenticated = False
                 
             # Reset loading state
             finally:
                 self.loading = False
+
                 
                 
     @rx.event
