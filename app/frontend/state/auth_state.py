@@ -17,8 +17,8 @@ class AuthState(rx.State):
     current_user: dict | None = None
 
     # # Server-side
-    # _access_token: str | None = None
-    # _refresh_token: str | None = None
+    _access_token: str | None = None
+    _refresh_token: str | None = None
     
     # Cookies Reflex (serán persistentes en navegador)
     access_token: str = rx.Cookie(name="access_token", secure=False, same_site="strict")
@@ -28,6 +28,9 @@ class AuthState(rx.State):
     # Events for UI use #
     # ----------------- #
     
+    # Control for one valid auth.
+    was_tryed: bool = False
+
     @rx.event
     def set_nickname(self, value: str):
         self.nickname = value
@@ -68,15 +71,36 @@ class AuthState(rx.State):
         self.is_authenticated = False
         self.access_token = ""
         self.refresh_token = ""
-        
-    @rx.event
+
+    @rx.event()
     async def login(self):
+            
+            print("script cookie")
+            rx.call_script(f"""
+                fetch("http://localhost:8000/loginJSON", {{
+                method: "POST",
+                headers: {{ "Content-Type": "application/json" }},
+                credentials: "include",
+                body: JSON.stringify({{
+                    nickname: {self.nickname},
+                    password: {self.password}
+                }})
+                }})
+                .then(res => {{
+                    if (!res.ok) throw new Error("Login failed");
+                    // Cookie is now in browser (HttpOnly)
+                    window.location.href = "/";
+                }})
+                .catch(err => alert(err));
+            """)
+        
+    @rx.event()
+    async def login2(self):
         """Try to login user with frontend data and store retrieved tokens in server-side variables."""
         
         # Start loading and clear errors
         self.loading = True
         self.error_msg = ""
-        
         # Send request to backend to login
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
@@ -92,16 +116,19 @@ class AuthState(rx.State):
                 # Get response data
                 data = response.json()
 
-                # Save backend tokens retrieved from login
-                self.access_token = data.get("access_token")
-                self.refresh_token = data.get("refresh_token")
+                _access_token = data.get("access_token")
+                _refresh_token = data.get("refresh_token")
+                # self.router.headers.cookie = {
+                #     "access_token": data.get("access_token"),
+                #     "refresh_token": data.get("refresh_token")
+                # }
 
-                # Console tokens debug
-                print("Access token:", self.access_token)
-                print("Refresh token:", self.refresh_token)
+                # Save backend tokens retrieved from login
+                #self.access_token = data.get("access_token")
+                #self.refresh_token = data.get("refresh_token")
 
                 # Loads user auth info
-                await self.check_auth()
+                #await self.check_auth()
             
             # Handle HTTP errors and show them into the UI
             except httpx.HTTPStatusError as e:
@@ -158,38 +185,32 @@ class AuthState(rx.State):
         # Send request to backend to get current user info
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
-
-                # Get cookies from the current client
-                cookie_header = self.router.headers.cookie or ""
-                cookies = {}
-                for pair in cookie_header.split(";"):
-                    if "=" in pair:
-                        k, v = pair.strip().split("=", 1)
-                        cookies[k] = v
-
+               
                 # If using cookie-based auth, the client will handle cookies automatically
                 response = await client.get(
                     "http://localhost:8000/me-cookie",
-                    cookies=cookies,
+                    cookies={"access_token": self.access_token, "refresh_token": self.refresh_token},
                     timeout=10
                 )
-                
-                # Check response status
+
+             
                 response.raise_for_status()
                 
                 # Save current user info
                 self.current_user = response.json()
                 self.is_authenticated = True
-                
+                 
             except httpx.HTTPStatusError as e:
                 print("respuesta: ", e.response.status_code)
+                print("detalle: ", e.response.text)
                 
-                if e.response.status_code == 401:
-                    # Access token expired → try refresh
-                    await self.refresh_tokens()
+                # if e.response.status_code == 401:
+                #     # Access token expired → try refresh
+                #     await self.refresh_tokens()
                     
-                    # Try again again if refresh was successful
-                    await self.check_auth()
+
+                # Try again again if refresh was successful
+                #     await self.check_auth()
                 
                 # else:
                 #     print(e.response.status_code)
@@ -230,8 +251,8 @@ class AuthState(rx.State):
         # Send request to backend to logout
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
-                self.access_token = ""
-                self.refresh_token = ""
+                rx.remove_cookie(self.access_token)
+                rx.remove_cookie(self.refresh_token)
                 self.current_user = None
                 self.is_authenticated = False
 
