@@ -50,11 +50,22 @@ def Navbar(sCompanyName: str = "IntegraQS"):
                     rx.menu.trigger(
                         rx.icon("menu", 
                                 size=30,
-                                color=colors["text"],)
+                                color=colors["text"],
+                                style={
+                                    "cursor": "pointer",
+                                    "transition": "all 0.3s ease",
+                                    "_hover": {
+                                                "color": colors["primary"],
+                                            }
+                                })
                     ),
                     rx.menu.content(
                         rx.menu.item("Iniciar Sesión"),
                         rx.menu.item("Registrarse"),
+                        variant="soft",
+                        color_scheme="blue",
+                        background_color=colors["background"],
+                        color=colors["text"],
                     ),
                     justify="end",
                     
