@@ -1,9 +1,15 @@
 import reflex as rx
+# Import state and needed functions
+from ...state.auth_state import AuthState
+from ..auth.auth_message import AuthMessage
 
-def InputField(placeholder: str, type: str = "text") -> rx.Component:
+
+def InputField(placeholder: str, value, on_change, type: str = "text") -> rx.Component:
     return rx.input(
                 rx.input.slot(rx.icon("user")),
                 placeholder="usuario@integraqs.es",
+                value=value,
+                on_change=on_change,
                 type="email",
                 size="3",
                 width="100%",
@@ -14,15 +20,19 @@ def InputField(placeholder: str, type: str = "text") -> rx.Component:
                 }
             ),
 
-def LoginForm() -> rx.Component:
+def LoginForm(image: bool = False) -> rx.Component:
     return rx.card(
         rx.vstack(
             rx.center(
-                rx.image(
-                    src="/img/logo.png",
-                    width="6em",
-                    height="auto",
-                    border_radius="25%",
+                # If image is set to True, display the logo image
+                rx.cond(
+                    image,
+                    rx.image(
+                        src="/img/logo.png",
+                        width="6em",
+                        height="auto",
+                        border_radius="25%",
+                    ),
                 ),
                 rx.heading(
                     "Iniciar Sesión",
@@ -43,7 +53,12 @@ def LoginForm() -> rx.Component:
                     text_align="left",
                     width="100%",
                 ),
-                InputField(placeholder="usuario@integraqs.es", type="email"),
+                InputField(
+                    placeholder="usuario@integraqs.es", 
+                    type="email", 
+                    value=AuthState.nickname,
+                    on_change=AuthState.set_nickname
+                    ),
                 spacing="2",
                 width="100%",
             ),
@@ -62,17 +77,30 @@ def LoginForm() -> rx.Component:
                     justify="between",
                     width="100%",
                 ),
-                rx.input(
-                    rx.input.slot(rx.icon("lock")),
-                    placeholder="Contraseña",
-                    type="password",
-                    size="3",
-                    width="100%",
-                ),
+                InputField(
+                    placeholder="usuario@integraqs.es", 
+                    type="email", 
+                    value=AuthState.password,
+                    on_change=AuthState.set_password,
+                    ),
+                # rx.input(
+                #     rx.input.slot(rx.icon("lock")),
+                #     placeholder="Contraseña",
+                #     type="password",
+                #     size="3",
+                #     width="100%",
+                # ),
                 spacing="2",
                 width="100%",
             ),
-            rx.button("Inicia Sesión", size="3", width="100%"),
+            rx.button(
+                "Inicia Sesión", 
+                size="3", 
+                width="100%",
+                type_="submit",
+                loading=AuthState.loading,
+                width="100%",
+                on_click=AuthState.login,),
             rx.center(
                 rx.link("Registrate", href="#", size="3"),
                 opacity="0.8",
