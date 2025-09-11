@@ -68,7 +68,6 @@ async def api_auth_login_JSON(data: UserLogin, response: Response, session: Asyn
                 "token_type": "bearer"
             }
 
-
 @auth_router.post("/logout", response_model=MessageResponse)
 async def logout(response: Response):
     """ API endpoint to log out the user, clears the cookies """
@@ -135,7 +134,11 @@ async def api_auth_get_me(current_user: User = Depends(get_current_user)):
 async def api_auth_get_me_cookie(current_user: User = Depends(ach.get_current_user_from_cookie)):
     """ API endpoint to retrieve the currently authenticated user's information, requires the user to be authenticated with the token validated using cookies """
 
-    return current_user
+    return {
+        "is_authenticated": True,
+        "id": current_user.id,
+        "nickname": current_user.nickname
+    }
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # REGISTRATION ENDPOINT #

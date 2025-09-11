@@ -29,7 +29,7 @@ def LoginForm():
                 type_="submit",
                 loading=AuthState.loading,
                 width="100%",
-                # on_click=AuthState.login,
+                on_click=AuthState.login,
             ),
             
             # Logout button solo si está logueado
@@ -44,12 +44,17 @@ def LoginForm():
                 None
             ),
             
-            AuthMessage()
+            AuthMessage(),
+            
+            rx.button(
+                "Debug check_auth",
+                on_click=AuthState.check_auth,
+                loading=AuthState.loading
+            ),
 
         ),
         padding="1rem",
         width="400px",
         border_radius="md",
-        box_shadow="md",
-        on_submit=AuthState.login
+        box_shadow="md"
     )
