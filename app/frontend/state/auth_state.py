@@ -1,6 +1,15 @@
 # app/frontend/state/auth_state.py
 import reflex as rx
 import httpx
+import os
+
+# Check the APP_MODE environment variable and set the API_URL accordingly to its mode
+APP_MODE = os.getenv("APP_MODE", "DEVELOPMENT")
+
+if APP_MODE == "PRODUCTION":
+    API_URL = os.getenv("BASE_URL")
+else:
+    API_URL = os.getenv("BASE_URL") + os.getenv("BACKEND_PORT")
 
 class AuthState(rx.State):
     
@@ -19,6 +28,7 @@ class AuthState(rx.State):
 
     # Server-side variables
     # ----------------------------------------------------------------------------------------- #
+    _debug_mode: bool = True
     _access_token: str | None = None
     _refresh_token: str | None = None
     
@@ -68,7 +78,7 @@ class AuthState(rx.State):
     # ----------------------------------------------------------------------------------------- #
     @rx.event
     async def register(self):
-        """Try to register user with frontend data. If successful, auto-login."""
+        """Try to register the user with frontend data. If successful, auto-login."""
         
         # Start loading and clear errors
         self.loading = True
@@ -78,7 +88,7 @@ class AuthState(rx.State):
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
                 response = await client.post(
-                    "http://localhost:8000/register",
+                    "{API_URL}/register",
                     json={"nickname": self.nickname, "password": self.password},
                     timeout=10
                 )
@@ -106,24 +116,28 @@ class AuthState(rx.State):
     @rx.event()
     async def login(self):
         """Login using a JS fetch request.
+        
         If the login is successful, it will retrieve cookies from backend into browser.
-        Then it will update the state variables, depending on the response. """
+        Then it will update the state variables, depending on the response. 
+        
+        If debug mode is enabled it shows the logs in the browser console."""
         
         # Start loading and clear errors
         self.loading = True
         self.error_msg = ""
         
-        # Fix possible problems with special characters
-        safe_nickname = self.nickname.replace('"', '\\"').replace("'", "\\'")
-        safe_password = self.password.replace('"', '\\"').replace("'", "\\'")
+        # Debug control and header to see console logs in browser.
+        debug_header = await self._get_debug_script_header()
         
         # Send login request via JS
         return rx.call_script(
             f"""
-            console.log('=== INICIANDO LOGIN FETCH ===');
-            console.log('Nickname:', '{safe_nickname}');
+            {debug_header}
             
-            fetch("http://localhost:8000/loginJSON", {{
+            __log('Iniciando proceso de login...');
+            __log('Usuario:', '{self.nickname}');
+            
+            fetch("{API_URL}/loginJSON", {{
                 method: "POST",
                 headers: {{ 
                     "Content-Type": "application/json",
@@ -131,61 +145,45 @@ class AuthState(rx.State):
                 }},
                 credentials: "include",
                 body: JSON.stringify({{
-                    nickname: "{safe_nickname}",
-                    password: "{safe_password}"
+                    nickname: "{self.nickname}",
+                    password: "{self.password}"
                 }})
             }})
             .then(async response => {{
-                console.log('Respuesta recibida:', {{
-                    status: response.status,
-                    ok: response.ok,
-                    statusText: response.statusText
-                }});
                 
-                // Log de headers de respuesta
-                console.log('Headers de respuesta:');
-                for (let [key, value] of response.headers.entries()) {{
-                    console.log(key + ': ' + value);
-                }}
+                __log('Respuesta recibida:', response.status, response.statusText);
                 
-                let data = null;
+                let data = {{}};
                 const contentType = response.headers.get('content-type');
+                
+                __log('Content-Type:', contentType);
                 
                 if (contentType && contentType.includes('application/json')) {{
                     try {{
                         data = await response.json();
-                        console.log('JSON parseado exitosamente:', data);
+                        __log('JSON parseado correctamente:', data);
                     }} catch (parseError) {{
-                        console.error('Error parseando JSON:', parseError);
                         data = {{ detail: "Error parseando respuesta JSON" }};
+                        __log('Error parseando JSON:', parseError);
                     }}
                 }} else {{
-                    console.log('Respuesta no es JSON, content-type:', contentType);
                     const textData = await response.text();
-                    console.log('Contenido de respuesta:', textData);
+                    __log('Respuesta como texto:', textData);
                     data = {{ detail: "Respuesta no es JSON válido" }};
                 }}
-
 
                 const result = {{
                     ok: response.ok,
                     status: response.status,
                     statusText: response.statusText,
                     data: data
-                }};
+                }}
                 
-                console.log('=== RESULTADO FINAL PARA CALLBACK ===');
-                console.log(JSON.stringify(result, null, 2));
-                console.log('=== ENVIANDO A CALLBACK ===');
-                
+                __log('Resultado final del login:', result);
                 return result;
             }})
             .catch(error => {{
-                console.error('=== ERROR EN FETCH ===');
-                console.error('Tipo de error:', error.name);
-                console.error('Mensaje:', error.message);
-                console.error('Stack:', error.stack);
-                
+                __log('Error de red en login:', error);
                 return {{
                     ok: false,
                     status: 0,
@@ -196,136 +194,154 @@ class AuthState(rx.State):
             """,
             callback=AuthState.login_callback,
         )
-        
-    def login_js_debug():
-        result = "a"
-    
+
     @rx.event
     async def login_callback(self, result: dict):
-        """Callback which processes the JS fetch response and interacts with the state variables."""
+        """Callback which processes the login JS fetch response and interacts with the state variables."""
         
-        self.loading = False
-        
-        # Validar que tenemos un resultado válido
-        if not isinstance(result, dict):
-            print(f"ERROR: El resultado no es un diccionario: {type(result)}")
-            self.error_msg = "Error interno: respuesta inválida"
-            self.is_authenticated = False
-            return
-
-        # Verificar si la petición fue exitosa
-        if not result.get("ok"):
-            error_detail = result.get("data", {}).get("detail", "Error desconocido")
-            if isinstance(result.get("data"), dict):
-                error_detail = result["data"].get("detail", "Error desconocido")
-            else:
-                error_detail = str(result.get("data", "Error desconocido"))
-                
-            print(f"LOGIN FALLIDO: {error_detail}")
-            self.error_msg = error_detail
-            self.is_authenticated = False
-            return
-
-        # Check status code from result
-        status_code = result.get("status", 0)
-        
-        # Status code is ok
-        if status_code == 200:
-            self.error_msg = ""
+        # Check if result has a key "ok"
+        if result.get("ok"):
             
             # Cookies HTTPOnly were stored correctly by browser, so now we store the tokens values in our state privately
-            self._access_token = result.get("data", {}).get("access_token")
-            self._refresh_token = result.get("data", {}).get("refresh_token")
+            self._access_token = result["data"].get("access_token")
+            self._refresh_token = result["data"].get("refresh_token")
             
-            # Check authentication
-            return await self.check_auth()
-        
-        # Status code is not ok
+            # self._access_token = result.get("data", {}).get("access_token")
+            # self._refresh_token = result.get("data", {}).get("refresh_token")
+            
+            # Checks if user is authenticated
+            await self.check_auth()
+            
+        # If result does not have a key "ok"
         else:
+            self.error_msg = result["data"].get("detail", "Login failed")
 
-            # Get error data
-            error_data = result.get("data", {})
-            
-            # Get error detail
-            if isinstance(error_data, dict):
-                error_detail = error_data.get("detail", f"Error {status_code}")
-            else:
-                error_detail = f"Error {status_code}: {error_data}"
-                
-            # Login failed so, set error message and logout
-            self.error_msg = error_detail
+            # Makes sure the user is logged out
             await self.logout()
+            
 
     # LOGOUT                 
     # ----------------------------------------------------------------------------------------- #
     @rx.event
     async def logout(self):
-        """Logout user by clearing tokens and user info."""
+        """Logout using a JS fetch request.
+        
+        If the logout is successful, it will remove cookies from the browser and server.
+        Then it will update the state variables, depending on the response. 
+        
+        If debug mode is enabled it shows the logs in the browser console."""
         
         # Start loading
         self.loading = True
         
-        return rx.call_script(
-        """
-        console.log('=== INICIANDO LOGOUT FETCH ===');
+        # Debug control and header to see console logs in browser.
+        debug_header = await self._get_debug_script_header()
         
-        fetch("http://localhost:8000/logout", {
-            method: "POST",
-            credentials: "include"
-        })
-        .then(async response => {
-            console.log('Logout response status:', response.status);
-            let data = {};
-            const contentType = response.headers.get('content-type');
+        return rx.call_script(
+            f"""
+            {debug_header}
+                
+            __log('Iniciando proceso de logout...');
+            __log('Usuario:', '{self.current_user}');
+                
             
-            if (contentType && contentType.includes('application/json')) {
-                try {
-                    data = await response.json();
-                    console.log('JSON parseado logout:', data);
-                } catch (parseError) {
-                    console.error('Error parseando JSON logout:', parseError);
-                }
-            }
-            
-            const result = {
-                ok: response.ok,
-                status: response.status,
-                data: data
-            };
-            
-            console.log('=== RESULTADO LOGOUT PARA CALLBACK ===', result);
-            return result;
-        })
-        .catch(error => {
-            console.error('Error en logout fetch:', error);
-            return {ok: false, status: 0, data: {detail: error.message}};
-        })
-        """,
+            fetch("{API_URL}/logout", {{
+                method: "POST",
+                credentials: "include"
+            }})
+            .then(async response => {{
+                
+                __log('Respuesta recibida:', response.status, response.statusText);
+                
+                let data = {{}};
+                const contentType = response.headers.get('content-type');
+                
+                __log('Content-Type:', contentType);
+                
+                if (contentType && contentType.includes('application/json')) {{
+                    try {{
+                        data = await response.json();
+                        __log('JSON parseado correctamente:', data);
+                    }} catch (parseError) {{
+                        data = {{ detail: "Error parseando respuesta JSON" }};
+                        __log('Error parseando JSON:', parseError);
+                    }}
+                }} else {{
+                    const textData = await response.text();
+                    __log('Respuesta como texto:', textData);
+                    data = {{ detail: "Respuesta no es JSON válido" }};
+                }}
+
+                const result = {{
+                    ok: response.ok,
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }}
+                
+                __log('Resultado final del logout:', result);
+                return result;
+            }})
+            .catch(error => {{
+                __log('Error de red en logout:', error);
+                return {{
+                    ok: false,
+                    status: 0,
+                    statusText: 'Network Error',
+                    data: {{ detail: error.message }}
+                }};
+            }})
+            """,
             callback=AuthState.logout_callback
         )
 
     @rx.event
-    def logout_callback(self, result):
+    async def logout_callback(self, result):
+        """Callback which processes the logout JS fetch response and interacts with the state variables."""
 
-        self.loading = False
+        # If result does not have a key "ok"
+        if not result.get("ok"):
+            self.error_msg = result["data"].get("detail", "Logout failed")
+        else:
+            self.error_msg = None
+            
+        # Reset state variables always when logout
+        self.loading = False            
         self.is_authenticated = False
         self.current_user = None
         self._access_token = None
         self._refresh_token = None
 
 
+
     # AUTH RELATED                 
     # ----------------------------------------------------------------------------------------- #
     @rx.event
     async def check_auth(self):
-        """Check if the user is authenticated by validating the access token with the backend."""
+        """Check user authorization using a JS fetch request.
+        
+        If the auth is successful, it will update the state variables, depending on the response.
+        
+        In case the tokens are expired, it will try to refresh them. 
+        Otherwise it will make sure the user is logged out.
+        
+        If debug mode is enabled it shows the logs in the browser console."""
+        
+        # Start loading
         self.loading = True
+        
+        # Debug control and header to see console logs in browser.
+        debug_header = await self._get_debug_script_header()
         
         return rx.call_script(
             f"""
-            console.log('=== INICIANDO AUTH FETCH ===');
+            {debug_header}
             
-            fetch("http://localhost:8000/me-cookie", {{
+            __log('Verificando autenticación...');
+            __log('Usuario:', '{self.nickname}');
+            __log('Cookies:', {{access_token: "{self._access_token}", refresh_token: "{self._refresh_token}"}});
+            
+            fetch("{API_URL}/me-cookie", {{
                 method: "GET",
                 headers: {{ 
                     "Content-Type": "application/json",
@@ -334,36 +350,30 @@ class AuthState(rx.State):
                 credentials: "include"
             }})
             .then(async response => {{
-                console.log('Respuesta recibida:', {{
-                    status: response.status,
-                    ok: response.ok,
-                    statusText: response.statusText
-                }});
+                __log('Respuesta recibida:', response.status, response.statusText);
                 
-                // Log de headers de respuesta
-                console.log('Headers de respuesta:');
-                for (let [key, value] of response.headers.entries()) {{
-                    console.log(key + ': ' + value);
-                }}
+                __log('Headers de respuesta:');
+                    for (let [key, value] of response.headers.entries()) {{
+                        __log(key + ': ' + value);
+                    }}
                 
-                let data = null;
+                let data = {{}};
                 const contentType = response.headers.get('content-type');
                 
                 if (contentType && contentType.includes('application/json')) {{
                     try {{
                         data = await response.json();
-                        console.log('JSON parseado exitosamente:', data);
+                        __log('JSON parseado exitosamente:', data);
                     }} catch (parseError) {{
-                        console.error('Error parseando JSON:', parseError);
+                        __log('Error parseando JSON:', parseError);
                         data = {{ detail: "Error parseando respuesta JSON" }};
                     }}
                 }} else {{
-                    console.log('Respuesta no es JSON, content-type:', contentType);
+                    __log('Respuesta no es JSON, content-type:', contentType);
                     const textData = await response.text();
-                    console.log('Contenido de respuesta:', textData);
+                    __log('Contenido de respuesta:', textData);
                     data = {{ detail: "Respuesta no es JSON válido" }};
                 }}
-
 
                 const result = {{
                     ok: response.ok,
@@ -372,17 +382,12 @@ class AuthState(rx.State):
                     data: data
                 }};
                 
-                console.log('=== RESULTADO FINAL PARA CALLBACK ===');
-                console.log(JSON.stringify(result, null, 2));
-                console.log('=== ENVIANDO A CALLBACK ===');
+                __log('Resultado final de la autenticación:', result);
                 
                 return result;
             }})
             .catch(error => {{
-                console.error('=== ERROR EN FETCH ===');
-                console.error('Tipo de error:', error.name);
-                console.error('Mensaje:', error.message);
-                console.error('Stack:', error.stack);
+                __log('Error de red en la autenticación:', error);
                 
                 return {{
                     ok: false,
@@ -396,73 +401,121 @@ class AuthState(rx.State):
         )
         
     @rx.event
-    async def check_auth_callback(self, result):
+    async def check_auth_callback(self, result: dict):
+        """Callback which processes the check auth JS fetch response and interacts with the state variables."""
         
-        data = result.get("data", {})
-
-        # Si la respuesta fue ok y contiene datos de usuario
-        if result.get("ok") and data.get("is_authenticated"):
+        # Check if result has a key "ok" and the user is authenticated
+        if result.get("ok") and result["data"].get("is_authenticated"):
             self.is_authenticated = True
-            self.current_user = data
-        else:
+            self.current_user = result["data"]
+            self.loading = False
+            self.error_msg = None
+        
+        # If expired or missing access token, try to refresh        
+        elif result.get("status") == 401:
+            # Access expirado → intentamos refresh
             await self.refresh_tokens()
-
-        self.loading = False
+        
+        # If result does not have a key "ok" or a status 401, then the user is not authenticated, so it logs out
+        else:
+            await self.logout()  
 
     # --------------------------------------------- #
     
     @rx.event
     async def refresh_tokens(self):
-        self.loading = True
-
+        
+        # Debug control and header to see console logs in browser.
+        debug_header = await self._get_debug_script_header()
+        
         return rx.call_script(
-            """
-            console.log('=== INICIANDO REFRESH TOKENS ===');
+            f"""
+            {debug_header}
+            
+            __log('Verificando cookie con token de refresh...');
+            __log('refresh_token: "{self._refresh_token}");
 
-            fetch("http://localhost:8000/refresh-token", {
+            fetch("{API_URL}/refresh-token", {{
                 method: "POST",
                 credentials: "include"
-            })
-            .then(async response => {
-                console.log('Refresh response status:', response.status);
-                let data = {};
+            }})
+            .then(async response => {{
+                __log('Respuesta recibida:', response.status, response.statusText);
+                
+                __log('Headers de respuesta:');
+                    for (let [key, value] of response.headers.entries()) {{
+                        __log(key + ': ' + value);
+                    }}
+                
+                let data = {{}};
                 const contentType = response.headers.get('content-type');
-
-                if (contentType && contentType.includes('application/json')) {
-                    try {
+                
+                if (contentType && contentType.includes('application/json')) {{
+                    try {{
                         data = await response.json();
-                        console.log('JSON parseado refresh tokens:', data);
-                    } catch (parseError) {
-                        console.error('Error parseando JSON refresh:', parseError);
-                    }
-                }
+                        __log('JSON parseado exitosamente:', data);
+                    }} catch (parseError) {{
+                        __log('Error parseando JSON:', parseError);
+                        data = {{ detail: "Error parseando respuesta JSON" }};
+                    }}
+                }} else {{
+                    __log('Respuesta no es JSON, content-type:', contentType);
+                    const textData = await response.text();
+                    __log('Contenido de respuesta:', textData);
+                    data = {{ detail: "Respuesta no es JSON válido" }};
+                }}
 
-                const result = {
+                const result = {{
                     ok: response.ok,
                     status: response.status,
+                    statusText: response.statusText,
                     data: data
-                };
-
-                console.log('=== RESULTADO REFRESH TOKENS PARA CALLBACK ===', result);
+                }};
+                
+                __log('Resultado final del refresco de tokens:', result);
+                
                 return result;
-            })
-            .catch(error => {
-                console.error('Error en refresh tokens fetch:', error);
-                return {ok: false, status: 0, data: {detail: error.message}};
-            })
+            }})
+            .catch(error => {{
+                __log('Error de red en el refresco:', error);
+                
+                return {{
+                    ok: false,
+                    status: 0,
+                    statusText: 'Network Error',
+                    data: {{ detail: error.message }}
+                }};
+            }})
             """,
             callback=AuthState.refresh_tokens_callback
         )
 
     @rx.event
-    async def refresh_tokens_callback(self, result):
+    async def refresh_tokens_callback(self, result: dict):
+        """Callback which processes the refresh tokens JS fetch response and interacts with the state variables."""
         
-        if result.get("ok") and "access_token" in result["data"]:
+        # Check if result has a key "ok" and the refresh token exists
+        if result.get("ok") and "refresh_token" in result["data"]:
+            
+            # Updates tokens
             self._access_token = result["data"]["access_token"]
             self._refresh_token = result["data"].get("refresh_token", self._refresh_token)
-            print("Tokens actualizados:", self._access_token, self._refresh_token)
-        else:
-            print("Refresh tokens falló, forzando logout")
+            
+            await self.check_auth()
+        
+        # If result does not have a key "ok" and the refresh token does not exist then logout
+        else: 
             await self.logout()
             
-        self.loading = False
+
+    # ---------------------------------------------------------------------------------------------------------------------------------- #
+    # AUXILIAR                                                                                                                           #
+    # ---------------------------------------------------------------------------------------------------------------------------------- #
+    async def _get_debug_script_header(self) -> str:
+            """ Generates the JS header of the __log function depending on the debug mode. """
+            
+            # If debug mode is enabled, return the __log function as console.log, otherwise return an empty function
+            if self._debug_mode:
+                return "const __log = console.log;"
+            else:
+                return "const __log = () => {};" 
