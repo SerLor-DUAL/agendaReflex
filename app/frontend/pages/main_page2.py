@@ -1,7 +1,7 @@
 import reflex as rx
 from ..components.auth.login_form import LoginForm
 from ..components.auth.register_form import RegisterForm
-from ..components.navbar.navbar_form import Navbar
+from ..components.navbar.navbar import Navbar
 from ..state.page_state import PageState
 
 def MainPage():

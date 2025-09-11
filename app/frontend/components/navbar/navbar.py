@@ -1,4 +1,8 @@
 import reflex as rx
+from app.frontend.components.colorPallet.colorPallet import ColorPallete
+
+# Get colors from ColorPallete class
+colors = ColorPallete().colors
 
 def Navbar(sCompanyName: str = "IntegraQS"):
     return rx.box(
@@ -35,34 +39,32 @@ def Navbar(sCompanyName: str = "IntegraQS"):
             rx.hstack(
                 rx.hstack(
                     rx.image(
-                        src="/logo.jpg",
-                        width="2em",
+                        src="/img/logo.png",
+                        width="4em",
                         height="auto",
                         border_radius="25%",
-                    ),
-                    rx.heading(
-                        "Reflex", size="6", weight="bold"
                     ),
                     align_items="center",
                 ),
                 rx.menu.root(
                     rx.menu.trigger(
-                        rx.icon("menu", size=30)
+                        rx.icon("menu", 
+                                size=30,
+                                color=colors["text"],)
                     ),
                     rx.menu.content(
-                        rx.menu.item("Home"),
-                        rx.menu.item("About"),
-                        rx.menu.item("Pricing"),
-                        rx.menu.item("Contact"),
+                        rx.menu.item("Iniciar Sesión"),
+                        rx.menu.item("Registrarse"),
                     ),
                     justify="end",
+                    
                 ),
                 justify="between",
                 align="center",
             ),
         ),
         align_content="center",
-        background_color="#1F2937",
+        background_color=colors["background"], 
         padding="1em",
         width="100%",
         height="6em",
@@ -78,16 +80,16 @@ def navbar_link(text: str, url: str) -> rx.Component:
                 "cursor": "pointer",
                 "transition": "all 0.3s ease",
                 "_hover": {
-                    "background": "#2B7FFF",       
-                },
+                            "bg": colors["background"],
+                        },
                 "_active": {
-                    "background": "#1447E6",
-                }
+                            "bg": colors["accent"],
+                            }
             },
-            color="white",
-            border="0px"
+            background_color=colors["primary"],
+            color=colors["text"],
         ),
-        background_color="#155DFC",
+        
         href=url,
         underline="none",
     )
