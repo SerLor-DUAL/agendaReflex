@@ -1,8 +1,8 @@
 import reflex as rx
-from app.frontend.components.colorPallet.colorPallet import ColorPallete
+from ...utils.colorPallet.colorPallet import ColorPallet
 
 # Get colors from ColorPallete class
-colors = ColorPallete().colors
+colors = ColorPallet().colors
 
 def Navbar(sCompanyName: str = "IntegraQS"):
     return rx.box(
@@ -91,16 +91,15 @@ def navbar_link(text: str, url: str) -> rx.Component:
                 "cursor": "pointer",
                 "transition": "all 0.3s ease",
                 "_hover": {
-                            "bg": colors["background"],
+                            "bg": colors["primaryHover"],
                         },
                 "_active": {
-                            "bg": colors["accent"],
+                            "bg": colors["primaryActive"],
                             }
             },
             background_color=colors["primary"],
             color=colors["text"],
         ),
-        
-        href=url,
+
         underline="none",
     )

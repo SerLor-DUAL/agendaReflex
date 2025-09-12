@@ -4,10 +4,12 @@ from ..components.navbar.navbar import Navbar
 from ..components.forms.login_form import LoginForm
 from ..state.page_state import PageState
 # Import the ColorPallete class to access color definitions.
-from ..components.colorPallet.colorPallet import ColorPallete
+from ..utils.colorPallet.colorPallet import ColorPallet
+
+
 
 # Get colors from ColorPallete class
-colors = ColorPallete().colors
+colors = ColorPallet().colors
 
 def LoginPage():
     return rx.box(

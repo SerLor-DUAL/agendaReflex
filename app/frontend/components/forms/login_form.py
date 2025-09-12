@@ -3,6 +3,13 @@ import reflex as rx
 from ...state.auth_state import AuthState
 from ..auth.auth_message import AuthMessage
 
+# Import the ColorPallete class to access color definitions.
+from ...utils.colorPallet.colorPallet import ColorPallet
+
+# Import components
+from ..forms.primaryBtn import PrimaryBtn
+
+colors = ColorPallet().colors
 
 def InputField(placeholder: str, value, on_change, type: str = "text") -> rx.Component:
     return rx.input(
@@ -17,7 +24,8 @@ def InputField(placeholder: str, value, on_change, type: str = "text") -> rx.Com
                     "_hover" : {
                         "border_color": "blue",
                     }
-                }
+                },
+                background_color=colors["textSecondary"],
             ),
 
 def LoginForm(image: bool = False) -> rx.Component:
@@ -40,6 +48,7 @@ def LoginForm(image: bool = False) -> rx.Component:
                     as_="h2",
                     text_align="center",
                     width="100%",
+                    color=colors["background"],
                 ),
                 direction="column",
                 spacing="5",
@@ -52,6 +61,7 @@ def LoginForm(image: bool = False) -> rx.Component:
                     weight="medium",
                     text_align="left",
                     width="100%",
+                    color=colors["background"],
                 ),
                 InputField(
                     placeholder="usuario@integraqs.es", 
@@ -68,11 +78,15 @@ def LoginForm(image: bool = False) -> rx.Component:
                         "Contraseña",
                         size="3",
                         weight="medium",
+                        color=colors["background"],
                     ),
                     rx.link(
                         "Olvidé mi contraseña",
                         href="#",
                         size="3",
+                        underline=None,
+                        color=colors["primary"],
+
                     ),
                     justify="between",
                     width="100%",
@@ -93,13 +107,42 @@ def LoginForm(image: bool = False) -> rx.Component:
                 spacing="2",
                 width="100%",
             ),
+            PrimaryBtn(
+                text="Inicia Sesión", 
+                size="3",
+                width="100%",
+                style={
+                    "cursor": "pointer",
+                    "transition": "all 0.3s ease",
+                    "_hover": {
+                                "bg": colors["primaryHover"],
+                            },
+                    "_active": {
+                                "bg": colors["primaryActive"],
+                                }
+                },
+                type_="submit",
+                background_color=colors["primary"],
+                loading=AuthState.loading,
+                on_click=AuthState.login,
+                ),
             rx.button(
                 "Inicia Sesión", 
                 size="3", 
                 width="100%",
                 type_="submit",
+                style={
+                    "cursor": "pointer",
+                    "transition": "all 0.3s ease",
+                    "_hover": {
+                                "bg": colors["primaryHover"],
+                            },
+                    "_active": {
+                                "bg": colors["primaryActive"],
+                                }
+                },
+                background_color=colors["primary"],
                 loading=AuthState.loading,
-                width="100%",
                 on_click=AuthState.login,),
             rx.center(
                 rx.link("Registrate", href="#", size="3"),
@@ -107,6 +150,15 @@ def LoginForm(image: bool = False) -> rx.Component:
                 spacing="2",
                 direction="row",
                 width="100%",
+                color=colors["primary"],
+                underline="none",
+                style={
+                    "cursor": "pointer",
+                    "transition": "all 0.3s ease",
+                    "_hover": {
+                                "color": colors["primaryHover"],
+                            }
+                }
             ),
             spacing="6",
             width="100%",
@@ -114,4 +166,5 @@ def LoginForm(image: bool = False) -> rx.Component:
         max_width="28em",
         size="4",
         width="100%",
+        background_color=colors["text"],
     )
