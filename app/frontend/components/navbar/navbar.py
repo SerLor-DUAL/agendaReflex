@@ -1,6 +1,8 @@
 import reflex as rx
 from ...utils.colorPallet.colorPallet import ColorPallet
 from ...state.page_state import PageState
+
+from ..forms.primaryBtn import PrimaryBtn
 # Get colors from ColorPallete class
 colors = ColorPallet().colors
 
@@ -25,11 +27,23 @@ def Navbar(sCompanyName: str = "IntegraQS"):
                 ),
                 rx.hstack(
                     rx.cond(PageState.current_form != "login",
-                            navbar_link("Iniciar Sesión", "/#"),
+                            PrimaryBtn(
+                                text="Iniciar Sesión",
+                                size="3",
+                                width="100%",
+                                on_click=lambda: PageState.show_form("login"),
+                            ),
+                            #navbar_link("Iniciar Sesión", "/#"),
                             None
                             ),
                     rx.cond(PageState.current_form != "register",
-                            navbar_link("Registrarse", "/#"),
+                            PrimaryBtn(
+                                text="Registro",
+                                size="3",
+                                width="100%",
+                                on_click=lambda: PageState.show_form("register"),
+                            ),
+                            #navbar_link("Registrarse", "/#"),
                             None
                             ),
                     
