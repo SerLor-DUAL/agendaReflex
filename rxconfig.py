@@ -65,4 +65,6 @@ config = rx.Config(
     # NOTE: Optional parameters for deployment and production settings
     # back_url=back_url,                   # Public or internal backend API URL (useful in prod)
     # deploy_url=front_url,                # Final deployed frontend URL (used for redirects, links, etc.)
+    
+    state_auto_setters=False,          # Disable automatic generation of setter methods for state variables
 )

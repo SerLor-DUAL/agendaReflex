@@ -1,28 +1,31 @@
 # app/backend/api/dependencies/auth_cookies.py
 
 # Import necessary modules
-from fastapi import Cookie, HTTPException, status, Response, Depends        # Importing FastAPI components for routing and error handling
-from sqlmodel.ext.asyncio.session import AsyncSession                       # Importing AsyncSession for asynchronous database operations
-from jose import JWTError                                                   # Importing JWTError for handling JWT decoding errors
-from ...db.db_handler import get_session                                    # Importing the database session dependency
-from typing import Optional                                                 # Importing Optional for type hints
-from ..utils.jwt import jwt_handler as jwt                                 # Importing the JWT handler for token operations
-from ...models.user.model import User                                       # Importing the DB User model
-from ...services.user_service import UserService as us                      # Importing the UserService for user operations
-import os                                                                   # Importing os for accessing environment variables
+from fastapi import Cookie, HTTPException, status, Response, Depends, Request   # Importing FastAPI components for routing and error handling
+from sqlmodel.ext.asyncio.session import AsyncSession                           # Importing AsyncSession for asynchronous database operations
+from jose import JWTError                                                       # Importing JWTError for handling JWT decoding errors
+from ...db.db_handler import get_session                                        # Importing the database session dependency
+from typing import Optional                                                     # Importing Optional for type hints
+from ..utils.jwt import jwt_handler as jwt                                      # Importing the JWT handler for token operations
+from ...models.user.model import User                                           # Importing the DB User model
+from ...services.user_service import UserService as us                          # Importing the UserService for user operations
+import os                                                                       # Importing os for accessing environment variables
 
 # Get the SECURE_COOKIES environment variable and convert it to a boolean
-SECURE_COOKIES = os.getenv("SECURE_COOKIES", "false").lower()
+SECURE_COOKIES = os.getenv("SECURE_COOKIES", "false").lower() == 'true'
 
 # NOTE: This class handles cookie authentication
 class AuthCookiesHandler:
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
     
-    async def get_current_user_from_cookie( self, response: Response, access_token: Optional[str] = Cookie(None), 
+    async def get_current_user_from_cookie( self, request: Request, response: Response, access_token: Optional[str] = Cookie(None), 
                                             refresh_token: Optional[str] = Cookie(None), session : AsyncSession = Depends(get_session)) -> User:
         """ Get the current user from the access token cookie """
         
+        # DEBUG: check cookies from request
+        # print("Cookies:", request.cookies)
+
         # If no access token cookie is found, raise an error that no token cookie was found
         if access_token:
             try:
@@ -34,7 +37,6 @@ class AuthCookiesHandler:
                     raise HTTPException(status_code=401, detail="Invalid token")
 
                 user = await us.read_user_by_id(user_id, session)
-                # await session.commit() // NO ES NECESARIO?
                 await session.refresh(user)
                 return user
 
@@ -47,7 +49,6 @@ class AuthCookiesHandler:
             
             # Gets the user from the database using the user_id
             user = await us.read_user_by_id(user_id, session)
-            # await session.commit() // NO ES NECESARIO?
             await session.refresh(user)
             return user
         
@@ -94,8 +95,9 @@ class AuthCookiesHandler:
                                 value=token,
                                 httponly=True,
                                 secure=SECURE_COOKIES,  # In localhost, secure=False
-                                samesite="lax",
-                                max_age=900             # 15 minutes for security
+                                samesite="strict",        
+                                max_age=900,            # 15 minutes for security
+                                path="/"
                             )
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -108,8 +110,9 @@ class AuthCookiesHandler:
                                 value=token,
                                 httponly=True,
                                 secure=SECURE_COOKIES,  # In localhost, secure=False
-                                samesite="lax",
-                                max_age=604800          # 7 days
+                                samesite="strict",        
+                                max_age=604800,         # 7 days
+                                path="/"
                             )
         
     # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -117,8 +120,8 @@ class AuthCookiesHandler:
     def clear_auth_cookies (self, response: Response) -> None:
         """ Clears the access and refresh token cookies """
         
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
+        response.delete_cookie("access_token", path="/", httponly=True)
+        response.delete_cookie("refresh_token", path="/", httponly=True)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # Create an instance of the AuthCookiesHandler class
