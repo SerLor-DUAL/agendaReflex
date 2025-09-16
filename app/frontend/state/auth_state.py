@@ -54,6 +54,7 @@ class AuthState(rx.State):
     def set_nickname(self, value: str):
         self.nickname = value
 
+
     @rx.event
     def set_password(self, value: str):
         self.password = value
