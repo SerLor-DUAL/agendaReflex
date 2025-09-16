@@ -12,24 +12,7 @@ from ..forms.inputField import InputField
 
 colors = ColorPallet().colors
 
-def InputField2(placeholder: str, value, on_change, type: str = "text") -> rx.Component:
-    return rx.input(
-                rx.input.slot(rx.icon("user")),
-                placeholder="usuario@integraqs.es",
-                value=value,
-                on_change=on_change,
-                type="email",
-                size="3",
-                width="100%",
-                style={
-                    "_hover" : {
-                        "border_color": "blue",
-                    }
-                },
-                background_color=colors["textSecondary"],
-            ),
-
-def LoginForm(image: bool = False) -> rx.Component:
+def RegisterForm(image: bool = False) -> rx.Component:
     return rx.card(
         rx.vstack(
             rx.center(
@@ -44,7 +27,7 @@ def LoginForm(image: bool = False) -> rx.Component:
                     ),
                 ),
                 rx.heading(
-                    "Iniciar Sesión",
+                    "Registrate",
                     size="6",
                     as_="h2",
                     text_align="center",
@@ -57,7 +40,7 @@ def LoginForm(image: bool = False) -> rx.Component:
             ),
             rx.vstack(
                 rx.text(
-                    "Correo Electrónico",
+                    "Usuario",
                     size="3",
                     weight="medium",
                     text_align="left",
@@ -65,8 +48,8 @@ def LoginForm(image: bool = False) -> rx.Component:
                     color=colors["background"],
                 ),
                 InputField(
-                    placeholder="usuario@integraqs.es", 
-                    type_="email", 
+                    placeholder="Usuario", 
+                    type_="text", 
                     value=AuthState.nickname,
                     on_change=AuthState.set_nickname,
                     icon="user-round"
@@ -75,25 +58,12 @@ def LoginForm(image: bool = False) -> rx.Component:
                 width="100%",
             ),
             rx.vstack(
-                rx.hstack(
-                    rx.text(
-                        "Contraseña",
-                        size="3",
-                        weight="medium",
-                        color=colors["background"],
-                    ),
-                    rx.link(
-                        "Olvidé mi contraseña",
-                        href="#",
-                        size="3",
-                        underline=None,
-                        color=colors["primary"],
-
-                    ),
-                    justify="between",
-                    width="100%",
+                rx.text(
+                    "Contraseña",
+                    size="3",
+                    weight="medium",
+                    color=colors["background"],
                 ),
-
                 InputField(
                     placeholder="Contraseña", 
                     type_="password", 
@@ -101,18 +71,11 @@ def LoginForm(image: bool = False) -> rx.Component:
                     on_change=AuthState.set_password,
                     icon="key-round"
                     ),
-                # rx.input(
-                #     rx.input.slot(rx.icon("lock")),
-                #     placeholder="Contraseña",
-                #     type="password",
-                #     size="3",
-                #     width="100%",
-                # ),
                 spacing="2",
                 width="100%",
             ),
             PrimaryBtn(
-                text="Inicia Sesión", 
+                text="Registrarse", 
                 size="3",
                 width="100%",
                 style={
@@ -131,7 +94,7 @@ def LoginForm(image: bool = False) -> rx.Component:
                 on_click=AuthState.login,
                 ),
             rx.center(
-                rx.link("Registrate", href="#", size="3"),
+                rx.link("¿Ya tienes cuenta? Inicia sesión", href="#", size="3"),
                 opacity="0.8",
                 spacing="2",
                 direction="row",

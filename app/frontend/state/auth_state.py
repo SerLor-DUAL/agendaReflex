@@ -66,7 +66,7 @@ class AuthState(rx.State):
             return "green"
         return "black"
 
-
+    
     @rx.event
     def clear_success_message(self):
         self.is_authenticated = False

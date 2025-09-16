@@ -3,6 +3,7 @@ import reflex as rx
 #from ..components.auth.register_form import RegisterForm
 from ..components.navbar.navbar import Navbar
 from ..components.forms.login_form import LoginForm
+from ..components.forms.register_form import RegisterForm
 from ..state.page_state import PageState
 
 # ColorPallet
@@ -13,7 +14,7 @@ def MainPage():
     return rx.box(
         Navbar(),  
         rx.box(
-            LoginForm(),
+            RegisterForm(),
             display="flex",
             align_items="center",
             justify_content="center",
