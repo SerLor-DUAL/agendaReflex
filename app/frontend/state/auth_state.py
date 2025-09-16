@@ -1,15 +1,7 @@
 # app/frontend/state/auth_state.py
 import reflex as rx
 import httpx
-import os
-
-# Check the APP_MODE environment variable and set the API_URL accordingly to its mode
-APP_MODE = os.getenv("APP_MODE", "DEVELOPMENT")
-
-if APP_MODE == "PRODUCTION":
-    API_URL = os.getenv("BASE_URL")
-else:
-    API_URL = os.getenv("BASE_URL") + os.getenv("BACKEND_PORT")
+from ...backend.config import app_settings as aps
 
 class AuthState(rx.State):
     
@@ -21,14 +13,14 @@ class AuthState(rx.State):
     # ----------------------------------------------------------------------------------------- #
     nickname: str = ""
     password: str = ""
+    message: str | dict | list = ""
     loading: bool = False
-    error_msg: str = ""
     is_authenticated: bool = False
     current_user: dict | None = None
 
     # Server-side variables
     # ----------------------------------------------------------------------------------------- #
-    _debug_mode: bool = True
+    _debug_mode: bool = aps.DEBUG_MODE
     _access_token: str | None = None
     _refresh_token: str | None = None
     
@@ -38,17 +30,17 @@ class AuthState(rx.State):
     def auth_message_text(self) -> str | None:
         if self.loading:
             return "Comprobando credenciales..."
-        if self.error_msg:
-            return f"Error: {self.error_msg}"
+        if self.message:
+            return f"Error: {self.message}"
         if self.is_authenticated:
             return "Inicio de sesión exitoso"
-        return None
+        return ""
 
     @rx.var
     def auth_message_color(self) -> str:
         if self.loading:
             return "gray"
-        if self.error_msg:
+        if self.message:
             return "red"
         if self.is_authenticated:
             return "green"
@@ -66,14 +58,6 @@ class AuthState(rx.State):
     def set_password(self, value: str):
         self.password = value
 
-    @rx.event
-    def clear_success_message(self):
-        self.is_authenticated = False
-        self._access_token = None
-        self._refresh_token = None
-        self.error_msg = ""
-
-
     # REGISTER                 
     # ----------------------------------------------------------------------------------------- #
     @rx.event
@@ -82,13 +66,13 @@ class AuthState(rx.State):
         
         # Start loading and clear errors
         self.loading = True
-        self.error_msg = ""
+        self.message = ""
         
         # Send request to backend to register
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
                 response = await client.post(
-                    "{API_URL}/register",
+                    "{aps.API_URL}/register",
                     json={"nickname": self.nickname, "password": self.password},
                     timeout=10
                 )
@@ -102,9 +86,9 @@ class AuthState(rx.State):
             # Handle HTTP errors and show them into the UI
             except httpx.HTTPStatusError as e:
                 try:
-                    self.error_msg = e.response.json().get("detail")
+                    self.message = e.response.json().get("detail")
                 except Exception:
-                    self.error_msg = f"Server error: {e}"
+                    self.message = {f"Server error: {e}"}
             
             # Reset loading state
             finally:
@@ -124,7 +108,7 @@ class AuthState(rx.State):
         
         # Start loading and clear errors
         self.loading = True
-        self.error_msg = ""
+        self.message = ""
         
         # Debug control and header to see console logs in browser.
         debug_header = await self._get_debug_script_header()
@@ -137,7 +121,7 @@ class AuthState(rx.State):
             __log('Iniciando proceso de login...');
             __log('Usuario:', '{self.nickname}');
             
-            fetch("{API_URL}/loginJSON", {{
+            fetch("{aps.API_URL}/loginJSON", {{
                 method: "POST",
                 headers: {{ 
                     "Content-Type": "application/json",
@@ -210,14 +194,14 @@ class AuthState(rx.State):
             # self._refresh_token = result.get("data", {}).get("refresh_token")
             
             # Checks if user is authenticated
-            await self.check_auth()
+            return await self.check_auth()
             
         # If result does not have a key "ok"
         else:
-            self.error_msg = result["data"].get("detail", "Login failed")
+            self.message = result["data"].get("detail", "Login failed")
 
             # Makes sure the user is logged out
-            await self.logout()
+            return await self.logout()
             
 
     # LOGOUT                 
@@ -232,22 +216,25 @@ class AuthState(rx.State):
         If debug mode is enabled it shows the logs in the browser console."""
         
         # Start loading
-        self.loading = True
-        
+        self.loading = False
+
         # Debug control and header to see console logs in browser.
         debug_header = await self._get_debug_script_header()
-        
+
         return rx.call_script(
             f"""
             {debug_header}
                 
             __log('Iniciando proceso de logout...');
             __log('Usuario:', '{self.current_user}');
-                
             
-            fetch("{API_URL}/logout", {{
-                method: "POST",
-                credentials: "include"
+            fetch("{aps.API_URL}/logout", {{
+                method: "POST",             
+                headers: {{ 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }},
+                credentials: "include",
             }})
             .then(async response => {{
                 
@@ -298,13 +285,16 @@ class AuthState(rx.State):
     @rx.event
     async def logout_callback(self, result):
         """Callback which processes the logout JS fetch response and interacts with the state variables."""
-
+        print("1")
         # If result does not have a key "ok"
         if not result.get("ok"):
-            self.error_msg = result["data"].get("detail", "Logout failed")
+            self.message = result["data"].get("detail", "Logout failed")
+            print("2a")
         else:
-            self.error_msg = None
-            
+            self.message = ""
+            print("2b")
+        
+        print("3")
         # Reset state variables always when logout
         self.loading = False            
         self.is_authenticated = False
@@ -341,7 +331,7 @@ class AuthState(rx.State):
             __log('Usuario:', '{self.nickname}');
             __log('Cookies:', {{access_token: "{self._access_token}", refresh_token: "{self._refresh_token}"}});
             
-            fetch("{API_URL}/me-cookie", {{
+            fetch("{aps.API_URL}/me-cookie", {{
                 method: "GET",
                 headers: {{ 
                     "Content-Type": "application/json",
@@ -409,16 +399,16 @@ class AuthState(rx.State):
             self.is_authenticated = True
             self.current_user = result["data"]
             self.loading = False
-            self.error_msg = None
+            self.message = ""
         
         # If expired or missing access token, try to refresh        
         elif result.get("status") == 401:
             # Access expirado → intentamos refresh
-            await self.refresh_tokens()
+            return await self.refresh_tokens()
         
         # If result does not have a key "ok" or a status 401, then the user is not authenticated, so it logs out
         else:
-            await self.logout()  
+            return await self.logout()  
 
     # --------------------------------------------- #
     
@@ -435,7 +425,7 @@ class AuthState(rx.State):
             __log('Verificando cookie con token de refresh...');
             __log('refresh_token: "{self._refresh_token}");
 
-            fetch("{API_URL}/refresh-token", {{
+            fetch("{aps.API_URL}/refresh-token", {{
                 method: "POST",
                 credentials: "include"
             }})
@@ -501,11 +491,11 @@ class AuthState(rx.State):
             self._access_token = result["data"]["access_token"]
             self._refresh_token = result["data"].get("refresh_token", self._refresh_token)
             
-            await self.check_auth()
+            return await self.check_auth()
         
         # If result does not have a key "ok" and the refresh token does not exist then logout
         else: 
-            await self.logout()
+            return await self.logout()
             
 
     # ---------------------------------------------------------------------------------------------------------------------------------- #

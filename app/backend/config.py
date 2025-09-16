@@ -51,7 +51,23 @@ class EventTableSettings:
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 
+# NOTE: This class handles app settings
+class AppSettings:
+    APP_MODE = os.getenv("APP_MODE", "DEVELOPMENT")
+    BASE_URL = os.getenv("BASE_URL", "http://localhost")
+    BACKEND_PORT = os.getenv("BACKEND_PORT", ":8000")
+    
+    if APP_MODE == "PRODUCTION":
+        API_URL = BASE_URL
+        DEBUG_MODE = False
+    else:
+        API_URL = f"{BASE_URL}{BACKEND_PORT}"
+        DEBUG_MODE = True
+        
+# ---------------------------------------------------------------------------------------------------------------------------------------------------- #
+
 # Create settings instances  
+app_settings = AppSettings()
 db_settings = DatabaseSettings()
 users_table_settings = UsersTableSettings()
 events_table_settings = EventTableSettings()

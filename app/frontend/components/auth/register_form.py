@@ -29,8 +29,8 @@ def RegisterForm():
         
         # Error message display
         rx.cond(
-            AuthState.error_msg != "",
-            rx.text(AuthState.error_msg, color="red"),
+            AuthState.message != "",
+            rx.text(AuthState.message, color="red"),
             None
         ),
         
