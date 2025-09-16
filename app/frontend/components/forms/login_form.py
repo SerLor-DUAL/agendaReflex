@@ -12,23 +12,6 @@ from ..forms.inputField import InputField
 
 colors = ColorPallet().colors
 
-def InputField2(placeholder: str, value, on_change, type: str = "text") -> rx.Component:
-    return rx.input(
-                rx.input.slot(rx.icon("user")),
-                placeholder="usuario@integraqs.es",
-                value=value,
-                on_change=on_change,
-                type="email",
-                size="3",
-                width="100%",
-                style={
-                    "_hover" : {
-                        "border_color": "blue",
-                    }
-                },
-                background_color=colors["textSecondary"],
-            ),
-
 def LoginForm(image: bool = False) -> rx.Component:
     return rx.card(
         rx.vstack(
@@ -57,7 +40,7 @@ def LoginForm(image: bool = False) -> rx.Component:
             ),
             rx.vstack(
                 rx.text(
-                    "Correo Electrónico",
+                    "Usuario",
                     size="3",
                     weight="medium",
                     text_align="left",
@@ -65,8 +48,8 @@ def LoginForm(image: bool = False) -> rx.Component:
                     color=colors["background"],
                 ),
                 InputField(
-                    placeholder="usuario@integraqs.es", 
-                    type_="email", 
+                    placeholder="Usuario", 
+                    type_="text", 
                     value=AuthState.nickname,
                     on_change=AuthState.set_nickname,
                     icon="user-round"

@@ -1,6 +1,6 @@
 import reflex as rx
 from ...utils.colorPallet.colorPallet import ColorPallet
-
+from ...state.page_state import PageState
 # Get colors from ColorPallete class
 colors = ColorPallet().colors
 
@@ -24,8 +24,15 @@ def Navbar(sCompanyName: str = "IntegraQS"):
                     align="center",
                 ),
                 rx.hstack(
-                    navbar_link("Iniciar Sesión", "/#"),
-                    navbar_link("Registrarse", "/#"),
+                    rx.cond(PageState.current_form != "login",
+                            navbar_link("Iniciar Sesión", "/#"),
+                            None
+                            ),
+                    rx.cond(PageState.current_form != "register",
+                            navbar_link("Registrarse", "/#"),
+                            None
+                            ),
+                    
                     justify="end",
                     spacing="5",
                     align="center",
@@ -60,8 +67,14 @@ def Navbar(sCompanyName: str = "IntegraQS"):
                                 })
                     ),
                     rx.menu.content(
-                        rx.menu.item("Iniciar Sesión"),
-                        rx.menu.item("Registrarse"),
+                        rx.cond(PageState.current_form != "login",
+                                rx.menu.item("Iniciar Sesión", on_click=lambda: PageState.show_form("login")),
+                                None
+                                ),
+                        rx.cond(PageState.current_form != "register",
+                                rx.menu.item("Registrarse", on_click=lambda: PageState.show_form("register")),
+                                None
+                                ),
                         variant="soft",
                         color_scheme="blue",
                         background_color=colors["background"],
@@ -99,6 +112,7 @@ def navbar_link(text: str, url: str) -> rx.Component:
             },
             background_color=colors["primary"],
             color=colors["text"],
+            on_click=lambda: PageState.show_form("login" if text == "Iniciar Sesión" else "register")
         ),
 
         underline="none",

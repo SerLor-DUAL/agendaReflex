@@ -11,10 +11,20 @@ from ..utils.colorPallet.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 def MainPage():
+    PageState.show_form("login")
     return rx.box(
         Navbar(),  
         rx.box(
-            RegisterForm(),
+            rx.cond(
+                PageState.current_form == "login",
+                LoginForm(),
+                rx.cond(
+                    PageState.current_form == "register",
+                    RegisterForm(),
+                    None
+                )
+            ),
+            on_mount=PageState.show_form("login"), # Show login form by default when the component mounts
             display="flex",
             align_items="center",
             justify_content="center",
@@ -26,3 +36,5 @@ def MainPage():
         width="100%",
         margin="0 auto",
     )
+
+
