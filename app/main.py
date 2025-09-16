@@ -1,3 +1,16 @@
+# app/frontend/main.py
+
+import reflex as rx                             # Imports reflex to build the frontend
+
+from .pages.main_page2 import MainPage          # Imports the main page of the frontend
+from .pages.login_page import LoginPage  # Imports the login page of the frontend
+
+
+# Se importan los modelos para que las migraciones los tengan en cuenta.
+from .db.models.event.model import Event
+from .db.models.user.model import User
+
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
@@ -48,13 +61,13 @@ async def lifespan(app: FastAPI):
 # ============================================================================================================================= #
 
 # Create FastAPI instance
-app = FastAPI(title="Integra", lifespan=lifespan)
+app_fastapi = FastAPI(title="Integra", lifespan=lifespan)
 
 # Injects CORS middleware into the FastApi instance
-setup_cors(app)
+setup_cors(app_fastapi)
 
 # This is a WebSocket endpoint for handling real-time events
-@app.websocket("/api/_event/")
+@app_fastapi.websocket("/api/_event/")
 async def websocket_endpoint(websocket: WebSocket):
     
     # Get the 'origin' header from the incoming WebSocket connection request
@@ -85,15 +98,21 @@ async def websocket_endpoint(websocket: WebSocket):
         pass
 
 # Include all the needed routes to FastAPI
-app.include_router(users_admin.user_admin_router)       # Administration of users API
-app.include_router(auth.auth_router)                    # Authentication API
-app.include_router(events.event_router)                 # Events API
-app.include_router(events_admin.event_admin_router)     # Administration of events API
+app_fastapi.include_router(users_admin.user_admin_router)       # Administration of users API
+app_fastapi.include_router(auth.auth_router)                    # Authentication API
+app_fastapi.include_router(events.event_router)                 # Events API
+app_fastapi.include_router(events_admin.event_admin_router)     # Administration of events API
 
 # ============================================================================================================================= #
 #                                                Routes configuration                                                           #
 # ============================================================================================================================= #
 
-@app.get("/")
+@app_fastapi.get("/")
 async def root():
     return {"message": "FastAPI corriendo"}
+
+
+# --- Reflex Entrypoint --- #
+app = rx.App(api_transformer=app_fastapi)       # Integrates FastAPI with Reflex
+app.add_page(MainPage, route="/")               # Add main_page
+app.add_page(LoginPage, route="/login")

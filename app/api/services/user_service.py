@@ -1,13 +1,13 @@
 # app/backend/services/user_service.py
 
 # Import necessary modules
-from ..models.user.model import User                              # Importing the DB User model
+from ...db.models.user.model import User                              # Importing the DB User model
 from sqlmodel import select                                       # Importing SQLModel for database operations
 from sqlmodel.ext.asyncio.session import AsyncSession             # Importing AsyncSession for asynchronous database operations
 from datetime import datetime                                     # Importing for timestamps management
-from ..api.utils.hashing import hash_handler as hh                    # Importing for password hashing management
-from ..api.utils.jwt import jwt_handler as jwt                        # Importing for JWT token management
-from ..models.user.DTOs import UserCreate, UserUpdate             # Importing DTOs for user input/output validation and transformation
+from ..utils.hashing import hash_handler as hh                    # Importing for password hashing management
+from ..utils.jwt import jwt_handler as jwt                        # Importing for JWT token management
+from ...db.models.user.DTOs import UserCreate, UserUpdate             # Importing DTOs for user input/output validation and transformation
 
 # NOTE: This class contains functions related to user management which will be used primarly in the API endpoints, but it may contain a few other functions as well 
 class UserService:

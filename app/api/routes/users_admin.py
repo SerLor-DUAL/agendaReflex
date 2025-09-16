@@ -4,9 +4,9 @@
 from fastapi import APIRouter, HTTPException, status, Depends          # Importing FastAPI components for routing and error handling
 from ...db.db_handler import get_session                               # Importing the get_session function to manage database sessions
 from sqlmodel.ext.asyncio.session import AsyncSession                  # Importing AsyncSession for asynchronous database operations
-from ...services.user_service import UserService as us                 # Importing the user service for user-related operations                     
-from ...models.user.model import User                                  # Importing the DB User model
-from ...models.user.DTOs import UserCreate, UserRead, UserUpdate       # Importing DTOs for user input/output validation and transformation
+from ..services.user_service import UserService as us                 # Importing the user service for user-related operations                     
+from ...db.models.user.model import User                                  # Importing the DB User model
+from ...db.models.user.DTOs import UserCreate, UserRead, UserUpdate       # Importing DTOs for user input/output validation and transformation
 
 # Creates a new API router for user-related endpoints
 user_admin_router = APIRouter(tags=["admin_users"])

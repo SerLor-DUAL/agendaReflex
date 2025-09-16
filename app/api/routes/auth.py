@@ -5,13 +5,13 @@ from typing import Optional
 from fastapi import APIRouter, Cookie, HTTPException, status, Depends, Request, Response      # Importing FastAPI components for routing and error handling
 from sqlmodel.ext.asyncio.session import AsyncSession                                         # Importing AsyncSession for asynchronous database operations
 
-from ...models.user.DTOs import RefreshResponse, TokenResponse, MessageResponse               # Importing token DTOs
-from ...models.user.model import User                                                         # Importing the DB User model
-from ...models.user.DTOs import UserLogin, UserCreate, UserRead                               # Importing DTOs for validating input/output of user data
+from ...db.models.user.DTOs import RefreshResponse, TokenResponse, MessageResponse               # Importing token DTOs
+from ...db.models.user.model import User                                                         # Importing the DB User model
+from ...db.models.user.DTOs import UserLogin, UserCreate, UserRead                               # Importing DTOs for validating input/output of user data
 from fastapi.security import OAuth2PasswordRequestForm                                        # Importing OAuth2PasswordRequestForm for token authentication
 from ..utils.jwt import jwt_handler as jwt                                                   # Importing the JWT handler for token operations
 from ..dependencies.auth_cookies import auth_cookies_handler as ach                      # Importing the dependency to manage the authentication cookies
-from ...services.user_service import UserService as us                                        # Importing the user service for user-related operations
+from ..services.user_service import UserService as us                                        # Importing the user service for user-related operations
 from ...db.db_handler import get_session                                                      # Importing the get_session function to manage database sessions
 from ..dependencies.auth_guard import get_current_user                                   # Importing the dependency to get the current user from the generated token
 

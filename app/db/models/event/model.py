@@ -4,8 +4,8 @@
 from sqlmodel import SQLModel, Field, Column, Integer, String, TIMESTAMP, ForeignKey    # Importing SQLModel for database operations
 from datetime import datetime                                                           # Importing for timestamps management
 from typing import Optional                                                             # Importing Optional for type hints
-from ...config import events_table_settings as et                                  # Importing events table settings
-from ...config import users_table_settings as ut                                   # Importing users table settings for using the fk
+from ....config import events_table_settings as et                                  # Importing events table settings
+from ....config import users_table_settings as ut                                   # Importing users table settings for using the fk
 
 import reflex as rx
 

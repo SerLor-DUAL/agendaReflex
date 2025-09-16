@@ -27,7 +27,7 @@ config = rx.Config(
 
     # Path to the module where your Reflex app is defined
     # Reflex will import this and look for the rx.App() instance
-    app_module_import="app.frontend.main",
+    app_module_import="app.main",
 
     # Optional but useful plugins:
     plugins=[

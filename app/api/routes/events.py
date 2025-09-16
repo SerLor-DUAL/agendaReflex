@@ -1,28 +1,29 @@
-# app/backend/api/routes/events_admin.py
+# app/backend/api/routes/events.py
 
 # Import necessary modules
 from fastapi import APIRouter, HTTPException, status, Depends          # Importing FastAPI components for routing and error handling
 from typing import Optional                                            # Importing Optional for type hints
 from ...db.db_handler import get_session                               # Importing the get_session function to manage database sessions
-from ...api.routes.auth import api_auth_get_me_cookie                  # Importing the dependency to get the current user from the generated token
+from .auth import api_auth_get_me_cookie                  # Importing the dependency to get the current user from the generated token
 from sqlmodel.ext.asyncio.session import AsyncSession                  # Importing AsyncSession for asynchronous database operations
-from ...services.event_service import EventService as es               # Importing the event service for event-related operations                     
-from ...models.event.model import Event                                # Importing the DB Event model
-from ...models.user.model import User                                  # Importing the DB User model
-from ...models.event.DTOs import EventCreate, EventRead, EventUpdate   # Importing DTOs for user input/output validation and transformation                
+from ..services.event_service import EventService as es               # Importing the event service for event-related operations                     
+from ...db.models.event.model import Event                                # Importing the DB Event model
+from ...db.models.user.model import User                                  # Importing the DB User model
+from ...db.models.event.DTOs import EventCreate, EventRead, EventUpdate   # Importing DTOs for user input/output validation and transformation
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError             # TODO: Cambiar por funciones SQLMODEL (Importing SQLAlchemy exceptions)
 
-# Create a new API router for event-related endpoints for admin
-event_admin_router = APIRouter(tags=["events_admin"])
+# Create a new API router for user-related endpoints
+event_router = APIRouter(tags=["events_user"])
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # CREATE ENDPOINTS #
 
-@event_admin_router.post("/admin/events/", response_model=EventRead)
-async def api_create_event(event_to_create: EventCreate, user_id: int, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to create a new event, expects an EventCreate DTO and returns an EventRead DTO."""
+@event_router.post("/events", response_model=EventRead)
+async def api_create_event(event_to_create: EventCreate, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to create a new event for the current user, expects an EventCreate DTO and returns an EventRead DTO.
+        This endpoint requires an user session and cookies with a validated token."""
 
-    # Validates datetime fields
+    # ValidateS datetime fields
     if not event_to_create.start_date or not event_to_create.end_date:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start date and end date are required.")
 
@@ -30,7 +31,7 @@ async def api_create_event(event_to_create: EventCreate, user_id: int, session: 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start date cannot be after end date.")
 
     # Calls the EventService function to create the event
-    event = await es.create_event(event_to_create, user_id, session)
+    event = await es.create_user_event(event_to_create, current_user, session)
     
     try:
         # Commits the changes to the database and refresh the event
@@ -51,12 +52,13 @@ async def api_create_event(event_to_create: EventCreate, user_id: int, session: 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # READ ENDPOINTS #
 
-@event_admin_router.get("/admin/events/", response_model=list[EventRead])
-async def api_get_events(amount: Optional[int] = None, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to get all events from the database and returns a list of EventRead DTOs. """
+@event_router.get("/events", response_model=list[EventRead])
+async def api_get_events(amount: Optional[int] = None, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to get all events from the database for the current user and returns a list of EventRead DTOs.
+        This endpoint requires an user session and cookies with a validated token."""
     
     # Retrieves all events from the database.
-    events: list[Event] | None = await es.read_all_events(session, maxAmount=amount)
+    events: list[Event] | None = await es.read_all_user_events(current_user, session, maxAmount=amount)
     
     # If no events found, raise an error
     if not events or events == [] or events is None:
@@ -66,12 +68,13 @@ async def api_get_events(amount: Optional[int] = None, session: AsyncSession = D
     return [EventRead.model_validate(event) for event in events[:amount]]
 
 
-@event_admin_router.get("/admin/events/{event_id}", response_model=EventRead)
-async def api_read_event_by_id(event_id: int, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to get an event by its ID from the database and returns an EventRead DTO. """
+@event_router.get("/events/{event_id}", response_model=EventRead)
+async def api_read_event_by_id(event_id: int, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to get an event by its ID from the database for the current user and returns an EventRead DTO.
+        This endpoint requires an user session and cookies with a validated token."""
 
     # Calls the EventService function to get the event by its ID
-    event: Event | None = await es.read_event_by_id(event_id, session)
+    event: Event | None = await es.read_user_event_by_id(event_id, current_user, session)
 
     # If event not found, raise an error
     if not event or event is None:
@@ -80,26 +83,13 @@ async def api_read_event_by_id(event_id: int, session: AsyncSession = Depends(ge
     return EventRead.model_validate(event)
 
 
-@event_admin_router.get("/admin/events/user/{user_id}", response_model=list[EventRead])
-async def api_read_events_by_user_id(user_id: int, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
-    """ API endpoint to get all events for a specific user by its ID from the database and returns a list of EventRead DTOs. """
-    
-    # Calls the EventSerice to get all events by user ID
-    events: list[Event] | None = await es.read_all_events_by_user_id(user_id, session)
-    
-    # If no events found, raise an error
-    if not events or events == [] or events is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Events not found for this user") 
-    
-    return [EventRead.model_validate(event) for event in events]
-
-
-@event_admin_router.get("/admin/events/title/{title}", response_model=list[EventRead])
-async def api_read_events_by_title(title: str, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to get all events by title from the database and returns a list of EventRead DTOs. """
+@event_router.get("/events/title/{title}", response_model=list[EventRead])
+async def api_read_events_by_title(title: str, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to get all events by title from the database for the current user and returns a list of EventRead DTOs.
+        This endpoint requires an user session and cookies with a validated token."""
     
     # Calls the EventService to get all events by title
-    events: list[Event] | None = await es.read_all_events_by_title(title, session)
+    events: list[Event] | None = await es.read_all_user_events_by_title(title, current_user, session)
     
     # If no events found, raise an error
     if not events or events == [] or events is None:
@@ -110,12 +100,13 @@ async def api_read_events_by_title(title: str, session: AsyncSession = Depends(g
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # UPDATE ENDPOINTS #
 
-@event_admin_router.put("/admin/events/{event_id}", response_model=EventRead)
-async def api_update_event_by_id(event_id: int, event_to_update: EventUpdate, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to update an event by its ID in the database and returns an EventRead DTO. """
+@event_router.put("/events/{event_id}", response_model=EventRead)
+async def api_update_event_by_id(event_id: int, event_to_update: EventUpdate, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to update an event by its ID in the database for the current user and returns an EventRead DTO. 
+        This endpoint requires an user session and cookies with a validated token."""
 
     # Calls the EventService function to update the event
-    event = await es.update_event(event_id, event_to_update, session)
+    event = await es.update_user_event(event_id, event_to_update, current_user, session)
 
     # If event update failed, raise an error
     if not event:
@@ -130,16 +121,13 @@ async def api_update_event_by_id(event_id: int, event_to_update: EventUpdate, se
 # ---------------------------------------------------------------------------------------------------------------------------------------------------- #
 # DELETE ENDPOINTS #
 
-@event_admin_router.delete("/admin/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def api_delete_event_by_id(event_id: int, session: AsyncSession = Depends(get_session)):
-    """ API endpoint to delete an event by its ID from the database and returns a success message. """
+@event_router.delete("/events/{event_id}", status_code=status.HTTP_200_OK)
+async def api_delete_event_by_id(event_id: int, session: AsyncSession = Depends(get_session), current_user: User = Depends(api_auth_get_me_cookie)):
+    """ API endpoint to delete an event by its ID from the database for the current user and returns a success message. 
+        This endpoint requires an user session and cookies with a validated token."""
 
     # Calls the EventService function to delete the event
-    was_deleted = await es.delete_event(event_id, session)
-
-    # If event deletion failed, raise an error
-    if not was_deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found or deletion failed")
+    await es.delete_user_event(event_id, current_user, session)
     
     # Commits the changes to the database
     await session.commit()

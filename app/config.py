@@ -53,7 +53,7 @@ class EventTableSettings:
 
 # NOTE: This class handles app settings
 class AppSettings:
-    APP_MODE = os.getenv("APP_MODE", "DEVELOPMENT")
+    APP_MODE = os.getenv("APP_STATUS", "DEVELOPMENT")
     BASE_URL = os.getenv("BASE_URL", "http://localhost")
     BACKEND_PORT = os.getenv("BACKEND_PORT", ":8000")
     

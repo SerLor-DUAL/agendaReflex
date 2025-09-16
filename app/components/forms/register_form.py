@@ -91,7 +91,7 @@ def RegisterForm(image: bool = False) -> rx.Component:
                 type_="submit",
                 background_color=colors["primary"],
                 loading=AuthState.loading,
-                on_click=AuthState.login,
+                on_click=AuthState.register,
                 ),
             rx.center(
                 rx.link("¿Ya tienes cuenta? Inicia sesión", href="#", size="3"),

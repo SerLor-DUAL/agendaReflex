@@ -1,7 +1,7 @@
 # app/frontend/state/auth_state.py
 import reflex as rx
 import httpx
-from ...backend.config import app_settings as aps
+from ..config import app_settings as aps
 
 class AuthState(rx.State):
     
@@ -72,8 +72,10 @@ class AuthState(rx.State):
         # Send request to backend to register
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
+                print(self.nickname, self.password)
+                print(f"{aps.API_URL}/register")
                 response = await client.post(
-                    "{aps.API_URL}/register",
+                    f"{aps.API_URL}/register",
                     json={"nickname": self.nickname, "password": self.password},
                     timeout=10
                 )
@@ -82,7 +84,7 @@ class AuthState(rx.State):
                 response.raise_for_status()
     
                 # Auto-login after successful registration
-                await self.login()
+                return await self.login()
 
             # Handle HTTP errors and show them into the UI
             except httpx.HTTPStatusError as e:

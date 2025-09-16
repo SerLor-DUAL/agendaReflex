@@ -1,12 +1,12 @@
 # app/backend/services/event_service.py
 
 # Import necessary modules
-from ..models.event.model import Event                            # Importing the DB Event model
+from ...db.models.event.model import Event                            # Importing the DB Event model
 from sqlmodel import select                                       # Importing SQLModel for database operations
 from sqlmodel.ext.asyncio.session import AsyncSession             # Importing AsyncSession for asynchronous database operations
 from datetime import datetime                                     # Importing for timestamps management
-from ..models.event.DTOs import EventCreate, EventUpdate          # Importing DTOs for event input/output validation and transformation
-from ..models.user.model import User                              # Importing the DB User model        
+from ...db.models.event.DTOs import EventCreate, EventUpdate          # Importing DTOs for event input/output validation and transformation
+from ...db.models.user.model import User                              # Importing the DB User model        
 from sqlalchemy.sql.operators import ilike_op                     # Import ILIKE operator for case-insensitive filtering
 
 # NOTE: This class contains functions related to event management which will be used primarly in the API endpoints, but it may contain a few other functions as well 
