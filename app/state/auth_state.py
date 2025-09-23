@@ -1,6 +1,6 @@
 # app/frontend/state/auth_state.py
 import reflex as rx
-import httpx
+import httpx, json
 from ..config import app_settings as aps
 
 class AuthState(rx.State):
@@ -229,7 +229,7 @@ class AuthState(rx.State):
             {debug_header}
                 
             __log('Iniciando proceso de logout...');
-            __log('Usuario:', '{self.current_user}');
+            __log('Usuario:', '{json.dumps(self.current_user)}');
             
             fetch("{aps.API_URL}/logout", {{
                 method: "POST",             
@@ -288,16 +288,13 @@ class AuthState(rx.State):
     @rx.event
     async def logout_callback(self, result):
         """Callback which processes the logout JS fetch response and interacts with the state variables."""
-        print("1")
+
         # If result does not have a key "ok"
         if not result.get("ok"):
             self.message = result["data"].get("detail", "Logout failed")
-            print("2a")
         else:
             self.message = ""
-            print("2b")
         
-        print("3")
         # Reset state variables always when logout
         self.loading = False            
         self.is_authenticated = False

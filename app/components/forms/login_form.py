@@ -1,139 +1,105 @@
 import reflex as rx
-# Import state and needed functions
 from ...state.auth_state import AuthState
 from ..auth.auth_message import AuthMessage
-
-# Import the ColorPallete class to access color definitions.
+from ..shared.button import Button
+from .form_field import FormField
+from .form_container import FormContainer
+from ..shared.text import Text
 from ...utils.colorPallet.colorPallet import ColorPallet
-
-# Import components
-from ..forms.primaryBtn import PrimaryBtn
-from ..forms.inputField import InputField
 
 colors = ColorPallet().colors
 
-def LoginForm(image: bool = False) -> rx.Component:
-    return rx.card(
-        rx.vstack(
-            rx.center(
-                # If image is set to True, display the logo image
-                rx.cond(
-                    image,
-                    rx.image(
-                        src="/img/logo.png",
-                        width="6em",
-                        height="auto",
-                        border_radius="25%",
-                    ),
-                ),
-                rx.heading(
-                    "Iniciar Sesión",
-                    size="6",
-                    as_="h2",
-                    text_align="center",
-                    width="100%",
-                    color=colors["background"],
-                ),
-                direction="column",
-                spacing="5",
-                width="100%",
-            ),
-            rx.vstack(
-                rx.text(
-                    "Usuario",
-                    size="3",
-                    weight="medium",
-                    text_align="left",
-                    width="100%",
-                    color=colors["background"],
-                ),
-                InputField(
-                    placeholder="Usuario", 
-                    type_="text", 
-                    value=AuthState.nickname,
-                    on_change=AuthState.set_nickname,
-                    icon="user-round"
-                    ),
-                spacing="2",
-                width="100%",
-            ),
-            rx.vstack(
-                rx.hstack(
-                    rx.text(
-                        "Contraseña",
-                        size="3",
-                        weight="medium",
-                        color=colors["background"],
-                    ),
-                    rx.link(
-                        "Olvidé mi contraseña",
-                        href="#",
-                        size="3",
-                        underline=None,
-                        color=colors["primary"],
-
-                    ),
-                    justify="between",
-                    width="100%",
-                ),
-
-                InputField(
-                    placeholder="Contraseña", 
-                    type_="password", 
-                    value=AuthState.password,
-                    on_change=AuthState.set_password,
-                    icon="key-round"
-                    ),
-                # rx.input(
-                #     rx.input.slot(rx.icon("lock")),
-                #     placeholder="Contraseña",
-                #     type="password",
-                #     size="3",
-                #     width="100%",
-                # ),
-                spacing="2",
-                width="100%",
-            ),
-            PrimaryBtn(
-                text="Inicia Sesión", 
-                size="3",
-                width="100%",
-                style={
-                    "cursor": "pointer",
-                    "transition": "all 0.3s ease",
-                    "_hover": {
-                                "bg": colors["primaryHover"],
-                            },
-                    "_active": {
-                                "bg": colors["primaryActive"],
-                                }
-                },
-                type_="submit",
-                background_color=colors["primary"],
-                loading=AuthState.loading,
-                on_click=AuthState.login,
-                ),
-            rx.center(
-                rx.link("Registrate", href="#", size="3"),
-                opacity="0.8",
-                spacing="2",
-                direction="row",
-                width="100%",
-                color=colors["primary"],
-                underline="none",
-                style={
-                    "cursor": "pointer",
-                    "transition": "all 0.3s ease",
-                    "_hover": {
-                                "color": colors["primaryHover"],
-                            },
-                }
-            ),
-            spacing="6",
-            width="100%",
+def LoginForm(show_logo: bool = False) -> rx.Component:
+    """Modern login form using new component architecture."""
+    
+    return FormContainer(
+        # Auth message
+        AuthMessage(),
+        
+        # Username field
+        FormField(
+            label="Username",
+            placeholder="Enter your username",
+            value=AuthState.nickname,
+            on_change=AuthState.set_nickname,
+            type_="text",
+            icon_left="user",
+            required=True
         ),
-        max_width="28em",
-        size="4",
-        width="100%",
-        background_color=colors["text"],
+        
+        # Password field with forgot password link
+        rx.vstack(
+            rx.hstack(
+                Text("Password*", variant="small", color="primary", weight="medium"),
+                rx.link(
+                    "Forgot password?",
+                    href="#",
+                    style={
+                        "font_size": "13px",
+                        "color": colors["primary"],
+                        "text_decoration": "none",
+                        "transition": "color 0.2s ease",
+                        "_hover": {
+                            "color": colors["primaryHover"],
+                            "text_decoration": "underline"
+                        }
+                    }
+                ),
+                justify="between",
+                align="center",
+                width="100%"
+            ),
+            FormField(
+                label="",  # Empty since handled above
+                placeholder="Enter your password",
+                value=AuthState.password,
+                on_change=AuthState.set_password,
+                type_="password",
+                icon_left="lock",
+                required=True
+            ),
+            spacing="1",
+            width="100%",
+            align="start"
+        ),
+        
+        # Login button
+        Button(
+            "Sign In",
+            variant="primary",
+            size="lg",
+            width="100%",
+            loading=AuthState.loading,
+            on_click=AuthState.login,
+            icon_left="log-in"
+        ),
+        
+        # Register link
+        rx.center(
+            rx.hstack(
+                Text("Don't have an account?", variant="body", color="secondary"),
+                rx.link(
+                    "Sign up",
+                    href="#",
+                    style={
+                        "color": colors["primary"],
+                        "font_weight": "500",
+                        "text_decoration": "none",
+                        "transition": "color 0.2s ease",
+                        "_hover": {
+                            "color": colors["primaryHover"],
+                            "text_decoration": "underline"
+                        }
+                    }
+                ),
+                spacing="2",
+                align="center"
+            ),
+            width="100%",
+            margin_top="16px"
+        ),
+        
+        title="Welcome Back",
+        subtitle="Sign in to your account to continue",
+        max_width="420px"
     )

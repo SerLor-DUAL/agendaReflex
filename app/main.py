@@ -2,14 +2,12 @@
 
 import reflex as rx                             # Imports reflex to build the frontend
 
-from .pages.main_page2 import MainPage          # Imports the main page of the frontend
-from .pages.login_page import LoginPage  # Imports the login page of the frontend
-
+from .pages.main_page import MainPage          # Imports the main page of the frontend
+from .pages.login_page import LoginPage         # Imports the login page of the frontend
 
 # Se importan los modelos para que las migraciones los tengan en cuenta.
 from .db.models.event.model import Event
 from .db.models.user.model import User
-
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
