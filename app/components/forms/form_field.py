@@ -1,6 +1,6 @@
 import reflex as rx
 from typing import Optional
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 from ..shared.input import Input
 from ..shared.text import Text
 

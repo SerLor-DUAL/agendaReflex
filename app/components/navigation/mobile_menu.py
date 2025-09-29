@@ -1,5 +1,5 @@
 import reflex as rx
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 from ...state.page_state import PageState
 from ...state.auth_state import AuthState
 

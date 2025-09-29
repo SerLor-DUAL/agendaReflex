@@ -5,7 +5,7 @@ from ..shared.button import Button
 from .form_field import FormField
 from .form_container import FormContainer
 from ..shared.text import Text
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 

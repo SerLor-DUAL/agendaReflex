@@ -1,5 +1,5 @@
 import reflex as rx
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 from ...utils.styles.modern_styles import get_modern_text_styles
 
 colors = ColorPallet().colors
