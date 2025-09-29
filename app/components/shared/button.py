@@ -1,7 +1,7 @@
 import reflex as rx
 from typing import Literal, Optional
-from ....utils.colorPallet.colorPallet import ColorPallet
-from ....utils.styles.modern_styles import get_modern_button_styles
+from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles.modern_styles import get_modern_button_styles
 
 colors = ColorPallet().colors
 
@@ -86,7 +86,7 @@ def Button(
     
     # Build button styles
     button_styles = {
-        **get_modern_button_styles(colors),
+        **get_modern_button_styles(),
         "background": config["background"],
         "color": config["color"],
         "border": config["border"],
@@ -111,29 +111,54 @@ def Button(
     # Build button content
     button_content = []
     
+    # Add left icon if present
     if icon_left:
+        if children:
+            icon_left_style = {"margin_right": "8px"}
+        else:
+            icon_left_style = {"margin_right": "0"}
         button_content.append(
-            rx.icon(icon_left, size=16, style={"margin_right": "8px" if children else "0"})
+            rx.icon(icon_left, size=16, style=icon_left_style)
         )
     
+    # Add loading spinner
+    if children:
+        spinner_style = {"margin_right": "8px"}
+    else:
+        spinner_style = {"margin_right": "0"}
+        
     button_content.append(
         rx.cond(
             loading,
-            rx.spinner(size="1", style={"margin_right": "8px" if children else "0"}),
+            rx.spinner(size="1", style=spinner_style),
             rx.fragment(),
         )
     )
     
+    # Add text content
     if children:
         button_content.append(rx.text(children, style={"font_weight": "500"}))
     
+    # Add right icon if present
     if icon_right:
+        if children:
+            icon_right_style = {"margin_left": "8px"}
+        else:
+            icon_right_style = {"margin_left": "0"}
         button_content.append(
-            rx.icon(icon_right, size=16, style={"margin_left": "8px" if children else "0"})
+            rx.icon(icon_right, size=16, style=icon_right_style)
         )
     
+    # Create button content
+    if len(button_content) > 1:
+        final_content = rx.hstack(*button_content, align="center", spacing="0")
+    elif button_content:
+        final_content = button_content[0]
+    else:
+        final_content = None
+    
     return rx.button(
-        rx.hstack(*button_content, align="center", spacing="0") if len(button_content) > 1 else button_content[0] if button_content else None,
+        final_content,
         style=button_styles,
         disabled=disabled or loading,
         **props

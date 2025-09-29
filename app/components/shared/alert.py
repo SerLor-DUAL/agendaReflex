@@ -1,6 +1,6 @@
 import reflex as rx
 from typing import Literal, Optional
-from ....utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 

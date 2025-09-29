@@ -12,7 +12,7 @@ colors = ColorPallet().colors
 def Navbar(company_name: str = "IntegraQS") -> rx.Component:
     """Modern minimalist navbar with perfect alignment."""
     
-    navbar_styles = get_modern_navbar_styles(colors)
+    navbar_styles = get_modern_navbar_styles()
     
     # Desktop navbar
     desktop_nav = rx.flex(

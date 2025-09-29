@@ -1,7 +1,7 @@
 import reflex as rx
 from typing import Optional
-from ..shared.ui import Input
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ..shared import Input
+from ...utils.styles.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 
@@ -22,14 +22,26 @@ def FormField(
     
     return rx.vstack(
         # Label
-        rx.text(
-            f"{label}{'*' if required else ''}",
-            style={
-                "font_size": "14px",
-                "font_weight": "500",
-                "color": colors["text"] if not has_error else colors["error"],
-                "margin_bottom": "4px"
-            }
+        rx.cond(
+            required,
+            rx.text(
+                f"{label}*",
+                style={
+                    "font_size": "14px",
+                    "font_weight": "500",
+                    "color": colors["error"] if has_error else colors["text"],
+                    "margin_bottom": "4px"
+                }
+            ),
+            rx.text(
+                label,
+                style={
+                    "font_size": "14px",
+                    "font_weight": "500",
+                    "color": colors["error"] if has_error else colors["text"],
+                    "margin_bottom": "4px"
+                }
+            ),
         ),
         
         # Input

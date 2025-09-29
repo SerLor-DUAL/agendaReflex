@@ -4,11 +4,13 @@ from ..components.forms.login_form import LoginForm
 from ..components.forms.register_form import RegisterForm
 from ..components.hero.hero_section import HeroSection
 from ..components.layout.containers import PageContainer, CenteredLayout
+from ..components.layout.spa_layout import SPALayout
 from ..state.page_state import PageState
 from ..state.auth_state import AuthState
+from ..state.app_state import AppState
 
 # Import modern styling utilities
-from ..utils.colorPallet.colorPallet import ColorPallet
+from ..utils.styles.colorPallet import ColorPallet
 from ..utils.styles.modern_styles import get_modern_card_styles, get_modern_text_styles
 
 colors = ColorPallet().colors
@@ -119,21 +121,21 @@ def _dashboard_content() -> rx.Component:
     )
 
 def MainPage() -> rx.Component:
-    """Modern modular main page with clean component structure."""
-    return PageContainer(
-        Navbar(),
-        rx.box(
-            rx.cond(
-                AuthState.is_authenticated,
-                _dashboard_content(),
-                CenteredLayout(
-                    HeroSection(
-                        title="Bienvenido a IntegraQS",
-                        subtitle="Un ERP moderno",
-                        size="compact"
-                    ),
-                    _form_container(),
-                )
+    """Modern main page that switches between login/register and full SPA layout."""
+    return rx.cond(
+        AuthState.is_authenticated,
+        # Show full SPA layout when authenticated
+        SPALayout(),
+        # Show login/register page when not authenticated
+        PageContainer(
+            Navbar(),
+            CenteredLayout(
+                HeroSection(
+                    title="Bienvenido a IntegraQS",
+                    subtitle="Un ERP moderno",
+                    size="compact"
+                ),
+                _form_container(),
             ),
             on_mount=lambda: PageState.show_form("login"),
         )

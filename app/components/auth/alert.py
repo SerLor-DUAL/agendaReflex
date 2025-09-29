@@ -1,6 +1,6 @@
 import reflex as rx
 from ...state.auth_state import AuthState
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 

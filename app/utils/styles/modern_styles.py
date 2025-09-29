@@ -87,7 +87,9 @@ def get_button_size(size: str):
 # -------------------------
 # CARD STYLES
 # -------------------------
-def get_modern_card_styles():
+def get_modern_card_styles(colors=None):
+    if colors is None:
+        colors = ColorPallet().colors
     return {
         "background": colors['glassBackground'],
         "backdrop_filter": "blur(20px)",
@@ -154,7 +156,9 @@ def get_input_size(size: str):
 # -------------------------
 # TEXT STYLES
 # -------------------------
-def get_modern_text_styles(variant="body"):
+def get_modern_text_styles(colors=None, variant="body"):
+    if colors is None:
+        colors = ColorPallet().colors
     base_styles = {"letter_spacing": "-0.025em", "line_height": "1.5"}
     return {
         "heading": {**base_styles, "font_weight": "700", "font_size": "24px", "color": colors['text'], "letter_spacing": "-0.05em"},

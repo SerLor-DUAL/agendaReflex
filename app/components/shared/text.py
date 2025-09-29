@@ -1,6 +1,6 @@
 import reflex as rx
 from typing import Literal, Optional
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 from ...utils.styles.modern_styles import get_modern_text_styles
 
 colors = ColorPallet().colors
@@ -82,10 +82,10 @@ def Text(
             style=text_styles,
             **props
         )
-    else:
-        return rx.text(
-            children,
-            size=config["size"],
-            style=text_styles,
-            **props
-        )
+    
+    return rx.text(
+        children,
+        size=config["size"],
+        style=text_styles,
+        **props
+    )

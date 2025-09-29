@@ -1,7 +1,7 @@
 import reflex as rx
 from typing import Literal, Optional
-from ....utils.colorPallet.colorPallet import ColorPallet
-from ....utils.styles.modern_styles import get_modern_card_styles
+from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles.modern_styles import get_modern_card_styles
 
 colors = ColorPallet().colors
 
@@ -49,34 +49,37 @@ def Card(
     
     # Variant-specific styles
     if variant == "elevated":
-        base_styles.update({
-            "box_shadow": "0 12px 48px rgba(0, 0, 0, 0.4)",
-            "_hover": {
+        elevated_styles = {
+            "box_shadow": "0 12px 48px rgba(0, 0, 0, 0.4)"
+        }
+        if hover:
+            elevated_styles["_hover"] = {
                 "transform": "translateY(-4px)",
                 "box_shadow": "0 16px 64px rgba(0, 0, 0, 0.5)"
-            } if hover else {}
-        })
+            }
+        base_styles.update(elevated_styles)
     elif variant == "outlined":
-        base_styles.update({
+        outlined_styles = {
             "background": "transparent",
             "border": f"2px solid {colors['border']}",
-            "box_shadow": "none",
-            "_hover": {
+            "box_shadow": "none"
+        }
+        if hover:
+            outlined_styles["_hover"] = {
                 "border_color": colors["borderLight"],
                 "background": colors["glassBackground"]
-            } if hover else {}
-        })
+            }
+        base_styles.update(outlined_styles)
     elif variant == "filled":
-        base_styles.update({
+        filled_styles = {
             "background": colors["surface"],
-            "backdrop_filter": "none",
-            "_hover": {
+            "backdrop_filter": "none"
+        }
+        if hover:
+            filled_styles["_hover"] = {
                 "background": colors["cards"]
-            } if hover else {}
-        })
-    
-    if not hover:
-        base_styles.pop("_hover", None)
+            }
+        base_styles.update(filled_styles)
     
     # Remove style from props to avoid duplicate keyword argument
     cleaned_props = {k: v for k, v in props.items() if k != "style"}

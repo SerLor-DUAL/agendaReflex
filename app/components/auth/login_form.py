@@ -1,9 +1,9 @@
 import reflex as rx
 from ...state.auth_state import AuthState
-from ..shared.ui import Button, Card
+from ..shared import Button, Card
 from .form_field import FormField
 from .alert import AuthAlert
-from ...utils.colorPallet.colorPallet import ColorPallet
+from ...utils.styles.colorPallet import ColorPallet
 
 colors = ColorPallet().colors
 

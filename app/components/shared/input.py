@@ -1,7 +1,7 @@
 import reflex as rx
 from typing import Literal, Optional
-from ....utils.colorPallet.colorPallet import ColorPallet
-from ....utils.styles.modern_styles import get_modern_input_styles
+from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles.modern_styles import get_modern_input_styles
 
 colors = ColorPallet().colors
 
@@ -54,13 +54,14 @@ def Input(
     
     # Build input styles based on variant and state
     input_styles = {
-        **get_modern_input_styles(colors),
+        **get_modern_input_styles(),
         "height": config["height"],
         "padding": config["padding"],
         "font_size": config["font_size"],
         "width": width,
     }
     
+    # Apply variant styles
     if variant == "filled":
         input_styles.update({
             "background": colors["surface"],
@@ -82,6 +83,7 @@ def Input(
             }
         })
     
+    # Apply error styles
     if error:
         input_styles.update({
             "border_color": colors["error"],
@@ -91,6 +93,7 @@ def Input(
             }
         })
     
+    # Apply disabled styles
     if disabled:
         input_styles.update({
             "opacity": "0.5",

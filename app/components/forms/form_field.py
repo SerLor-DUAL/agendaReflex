@@ -48,9 +48,9 @@ def FormField(
     return rx.vstack(
         # Field label
         Text(
-            f"{label}{'*' if required else ''}",
+            label + ("*" if required else ""),
             variant="small",
-            color="primary" if not has_error else "error",
+            color="error" if has_error else "primary",
             weight="medium"
         ),
         
