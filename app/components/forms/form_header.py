@@ -1,8 +1,8 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_text_styles
+from ...utils.styles import colors, spacing, typography
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_button_styles
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def FormHeader(
     title: str,
@@ -45,7 +45,7 @@ def FormHeader(
             title,
             size="6",
             style={
-                **get_modern_text_styles(colors, "heading"),
+                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                 "text_align": "center",
                 "margin_bottom": "8px" if subtitle else "24px",
                 "animation": "fadeIn 0.6s ease-out"
@@ -58,7 +58,7 @@ def FormHeader(
             rx.text(
                 subtitle,
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "text_align": "center",
                     "margin_bottom": "24px",
                     "animation": "fadeIn 0.6s ease-out 0.1s both"

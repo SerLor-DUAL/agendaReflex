@@ -9,11 +9,14 @@ from ..state.page_state import PageState
 from ..state.auth_state import AuthState
 from ..state.app_state import AppState
 
-# Import modern styling utilities
-from ..utils.styles.colorPallet import ColorPallet
-from ..utils.styles.modern_styles import get_modern_card_styles, get_modern_text_styles
-
-colors = ColorPallet().colors
+# Import modern styling utilities  
+from ..utils.styles import (
+    colors, 
+    spacing, 
+    typography,
+    get_card_styles,
+    get_text_styles
+)
 
 def _form_container() -> rx.Component:
     """Modern form container with conditional forms."""
@@ -28,7 +31,7 @@ def _form_container() -> rx.Component:
                     rx.center(
                         rx.text(
                             "Welcome! Please sign in to continue.",
-                            style=get_modern_text_styles(colors, "body"),
+                            style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                             text_align="center"
                         ),
                         padding="2rem"
@@ -51,7 +54,7 @@ def _dashboard_content() -> rx.Component:
             rx.heading(
                 "Dashboard",
                 size="6",
-                style=get_modern_text_styles(colors, "heading"),
+                style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                 margin_bottom="24px"
             ),
             rx.grid(
@@ -60,7 +63,7 @@ def _dashboard_content() -> rx.Component:
                     rx.vstack(
                         rx.hstack(
                             rx.icon("users", size=24, color=colors["primary"]),
-                            rx.text("Clients", style=get_modern_text_styles(colors, "subheading")),
+                            rx.text("Clients", style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"])),
                             justify="between",
                             align="center",
                             width="100%"
@@ -68,16 +71,16 @@ def _dashboard_content() -> rx.Component:
                         rx.text(
                             "0",
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "32px",
-                                "color": colors["text"],
+                                "color": colors["text_primary"],
                             }
                         ),
                         spacing="3",
                         align="start",
                         width="100%"
                     ),
-                    style=get_modern_card_styles(colors),
+                    style=get_card_styles(),
                     padding="24px",
                     width="100%"
                 ),
@@ -85,7 +88,7 @@ def _dashboard_content() -> rx.Component:
                     rx.vstack(
                         rx.hstack(
                             rx.icon("shopping-bag", size=24, color=colors["primary"]),
-                            rx.text("Orders", style=get_modern_text_styles(colors, "subheading")),
+                            rx.text("Orders", style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"])),
                             justify="between",
                             align="center",
                             width="100%"
@@ -93,16 +96,16 @@ def _dashboard_content() -> rx.Component:
                         rx.text(
                             "0",
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "32px",
-                                "color": colors["text"],
+                                "color": colors["text_primary"],
                             }
                         ),
                         spacing="3",
                         align="start",
                         width="100%"
                     ),
-                    style=get_modern_card_styles(colors),
+                    style=get_card_styles(),
                     padding="24px",
                     width="100%"
                 ),

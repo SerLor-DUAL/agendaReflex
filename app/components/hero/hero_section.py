@@ -1,8 +1,7 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_text_styles
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_button_styles, get_text_styles
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def HeroSection(
     title: str = "Welcome to IntegraQS",
@@ -49,9 +48,7 @@ def HeroSection(
             title,
             size=config["title_size"],
             style={
-                "background": colors["gradientPrimary"],
-                "background_clip": "text",
-                "color": "transparent",
+                "color": colors["primary"],
                 "font_weight": config["title_weight"],
                 "letter_spacing": "-0.03em",
                 "text_align": "center",
@@ -65,10 +62,10 @@ def HeroSection(
         rx.text(
             subtitle,
             style={
-                **get_modern_text_styles(colors, "body"),
+                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                 "text_align": "center",
                 "font_size": config["subtitle_size"],
-                "color": colors["textSecondary"],
+                "color": colors["text_secondary"],
                 "margin_bottom": "16px",
                 "max_width": config["max_width"],
                 "animation": "fadeIn 0.6s ease-out 0.2s both",

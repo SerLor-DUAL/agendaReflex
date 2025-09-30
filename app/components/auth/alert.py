@@ -1,8 +1,8 @@
 import reflex as rx
 from ...state.auth_state import AuthState
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def AuthAlert() -> rx.Component:
     """Simple auth alert component."""
@@ -14,8 +14,8 @@ def AuthAlert() -> rx.Component:
                 rx.icon(
                     rx.cond(
                         AuthState.auth_message_color == "green",
-                        "check-circle",
-                        "x-circle"
+                        "circle-check",
+                        "circle-x"
                     ),
                     size=16,
                     color=rx.cond(
@@ -28,7 +28,7 @@ def AuthAlert() -> rx.Component:
                     AuthState.auth_message_text,
                     style={
                         "font_size": "14px",
-                        "color": colors["text"]
+                        "color": colors["text_primary"]
                     }
                 ),
                 spacing="2",

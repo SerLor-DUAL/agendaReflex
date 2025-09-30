@@ -1,9 +1,9 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 from ...state.page_state import PageState
 from ...state.auth_state import AuthState
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def MobileMenu() -> rx.Component:
     """
@@ -16,7 +16,7 @@ def MobileMenu() -> rx.Component:
     return rx.menu.root(
         rx.menu.trigger(
             rx.button(
-                rx.icon("menu", size=20, color=colors["text"]),
+                rx.icon("menu", size=20, color=colors["text_primary"]),
                 variant="ghost",
                 style={
                     "background": "transparent",
@@ -24,10 +24,10 @@ def MobileMenu() -> rx.Component:
                     "border_radius": "10px",
                     "padding": "10px",
                     "transition": "all 0.2s ease",
-                    "color": colors["text"],
+                    "color": colors["text_primary"],
                     "_hover": {
                         "background": colors["surface"],
-                        "border_color": colors["borderLight"],
+                        "border_color": colors["border_light"],
                         "box_shadow": f"0 4px 12px {colors['focusRing']}",
                     }
                 }
@@ -40,7 +40,7 @@ def MobileMenu() -> rx.Component:
                     rx.menu.item(
                         rx.hstack(
                             rx.icon("users", size=16, color=colors["primary"]),
-                            rx.text("Clients", color=colors["text"]),
+                            rx.text("Clients", color=colors["text_primary"]),
                             spacing="2"
                         ),
                         on_click=lambda: PageState.show_form("clientes")
@@ -48,7 +48,7 @@ def MobileMenu() -> rx.Component:
                     rx.menu.item(
                         rx.hstack(
                             rx.icon("shopping-bag", size=16, color=colors["primary"]),
-                            rx.text("Orders", color=colors["text"]),
+                            rx.text("Orders", color=colors["text_primary"]),
                             spacing="2"
                         ),
                         on_click=lambda: PageState.show_form("pedidos")
@@ -67,7 +67,7 @@ def MobileMenu() -> rx.Component:
                     rx.menu.item(
                         rx.hstack(
                             rx.icon("log-in", size=16, color=colors["primary"]),
-                            rx.text("Sign In", color=colors["text"]),
+                            rx.text("Sign In", color=colors["text_primary"]),
                             spacing="2"
                         ),
                         on_click=lambda: PageState.show_form("login")
@@ -75,7 +75,7 @@ def MobileMenu() -> rx.Component:
                     rx.menu.item(
                         rx.hstack(
                             rx.icon("user-plus", size=16, color=colors["primary"]),
-                            rx.text("Sign Up", color=colors["text"]),
+                            rx.text("Sign Up", color=colors["text_primary"]),
                             spacing="2"
                         ),
                         on_click=lambda: PageState.show_form("register")
@@ -83,7 +83,7 @@ def MobileMenu() -> rx.Component:
                 )
             ),
             style={
-                "background": colors["glassBackground"],
+                "background": colors["surface"],
                 "backdrop_filter": "blur(20px)",
                 "border": f"1px solid {colors['glassBorder']}",
                 "border_radius": "12px",

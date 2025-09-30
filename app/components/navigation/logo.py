@@ -1,8 +1,7 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_text_styles
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_button_styles, get_text_styles
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def Logo(company_name: str = "IntegraQS", size: str = "large") -> rx.Component:
     """
@@ -56,13 +55,11 @@ def Logo(company_name: str = "IntegraQS", size: str = "large") -> rx.Component:
         rx.text(
             company_name,
             style={
-                **get_modern_text_styles(colors, "heading"),
+                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                 "font_size": config["font_size"],
                 "font_weight": "800",
                 "letter_spacing": "-0.02em",
-                "background": colors["gradientPrimary"],
-                "background_clip": "text",
-                "color": "transparent",
+                "color": colors["primary"],
                 "text_shadow": "0 2px 4px rgba(0, 0, 0, 0.1)",
                 "cursor": "pointer",
                 "transition": "all 0.3s ease",

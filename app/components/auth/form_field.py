@@ -1,9 +1,9 @@
 import reflex as rx
 from typing import Optional
 from ..shared import Input
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def FormField(
     label: str,
@@ -29,7 +29,7 @@ def FormField(
                 style={
                     "font_size": "14px",
                     "font_weight": "500",
-                    "color": colors["error"] if has_error else colors["text"],
+                    "color": colors["error"] if has_error else colors["text_primary"],
                     "margin_bottom": "4px"
                 }
             ),
@@ -38,7 +38,7 @@ def FormField(
                 style={
                     "font_size": "14px",
                     "font_weight": "500",
-                    "color": colors["error"] if has_error else colors["text"],
+                    "color": colors["error"] if has_error else colors["text_primary"],
                     "margin_bottom": "4px"
                 }
             ),

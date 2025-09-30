@@ -1,8 +1,7 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_card_styles
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_button_styles
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def PageContainer(*children, **kwargs) -> rx.Component:
     """
@@ -19,7 +18,7 @@ def PageContainer(*children, **kwargs) -> rx.Component:
     default_style = {
         "width": "100%",
         "min_height": "100vh",
-        "background": colors["gradientDark"],
+        "background": colors["background"],
         "box_sizing": "border-box",
         "font_family": "Inter, system-ui, -apple-system, sans-serif",
     }
@@ -77,7 +76,7 @@ def CardContainer(*children, **kwargs) -> rx.Component:
     """
     
     default_style = {
-        **get_modern_card_styles(colors),
+        **get_card_styles(),
         "padding": "32px",
         "width": "100%",
         "max_width": "400px"

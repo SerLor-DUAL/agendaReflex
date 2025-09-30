@@ -3,9 +3,9 @@ from ...state.auth_state import AuthState
 from ..shared import Button, Card
 from .form_field import FormField
 from .alert import AuthAlert
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def LoginForm() -> rx.Component:
     """Clean modern login form."""
@@ -18,7 +18,7 @@ def LoginForm() -> rx.Component:
                     "Welcome Back",
                     size="6",
                     style={
-                        "color": colors["text"],
+                        "color": colors["text_primary"],
                         "text_align": "center",
                         "font_weight": "700",
                         "margin_bottom": "8px"
@@ -27,7 +27,7 @@ def LoginForm() -> rx.Component:
                 rx.text(
                     "Sign in to continue",
                     style={
-                        "color": colors["textSecondary"],
+                        "color": colors["text_secondary"],
                         "text_align": "center",
                         "font_size": "14px"
                     }
@@ -60,7 +60,7 @@ def LoginForm() -> rx.Component:
                         style={
                             "font_size": "14px",
                             "font_weight": "500",
-                            "color": colors["text"]
+                            "color": colors["text_primary"]
                         }
                     ),
                     rx.link(
@@ -110,7 +110,7 @@ def LoginForm() -> rx.Component:
                     rx.text(
                         "Don't have an account?",
                         style={
-                            "color": colors["textSecondary"],
+                            "color": colors["text_secondary"],
                             "font_size": "14px"
                         }
                     ),

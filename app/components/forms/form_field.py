@@ -1,10 +1,10 @@
 import reflex as rx
 from typing import Optional
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 from ..shared.input import Input
 from ..shared.text import Text
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def FormField(
     label: str,

@@ -228,6 +228,11 @@ def get_theme_config() -> Dict[str, Any]:
             "hover_overlay": SemanticColors.HOVER_OVERLAY,
             "active_overlay": SemanticColors.ACTIVE_OVERLAY,
             "focus_ring": SemanticColors.FOCUS_RING,
+            
+            # Gradients (CSS linear-gradient strings for when needed)
+            "gradient_primary": "linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)",
+            "gradient_dark": "linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)",
+            "gradient_surface": "linear-gradient(135deg, #1A1A1A 0%, #252525 100%)",
         },
         
         "spacing": {

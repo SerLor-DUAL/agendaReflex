@@ -3,9 +3,9 @@ from ...state.auth_state import AuthState
 from ..shared import Button, Card
 from .form_field import FormField
 from .alert import AuthAlert
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def RegisterForm() -> rx.Component:
     """Clean modern register form."""
@@ -18,7 +18,7 @@ def RegisterForm() -> rx.Component:
                     "Create Account",
                     size="6",
                     style={
-                        "color": colors["text"],
+                        "color": colors["text_primary"],
                         "text_align": "center",
                         "font_weight": "700",
                         "margin_bottom": "8px"
@@ -27,7 +27,7 @@ def RegisterForm() -> rx.Component:
                 rx.text(
                     "Join us and start managing your business",
                     style={
-                        "color": colors["textSecondary"],
+                        "color": colors["text_secondary"],
                         "text_align": "center",
                         "font_size": "14px"
                     }
@@ -80,7 +80,7 @@ def RegisterForm() -> rx.Component:
                     rx.text(
                         "Already have an account?",
                         style={
-                            "color": colors["textSecondary"],
+                            "color": colors["text_secondary"],
                             "font_size": "14px"
                         }
                     ),

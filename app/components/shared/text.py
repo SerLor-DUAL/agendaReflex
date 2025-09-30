@@ -1,91 +1,226 @@
+"""
+Text Component
+
+This module provides reusable Text components that leverage the design system
+for consistent typography throughout the application.
+"""
+
 import reflex as rx
-from typing import Literal, Optional
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_text_styles
+from typing import Union, Optional
 
-colors = ColorPallet().colors
-
-TextVariant = Literal["h1", "h2", "h3", "h4", "h5", "h6", "body", "small", "caption", "overline"]
-TextColor = Literal["primary", "secondary", "muted", "disabled", "error", "success", "warning"]
+# Import styles from the design system
+from app.utils.styles import get_text_styles, colors, typography
 
 def Text(
-    children: str = "",
-    variant: TextVariant = "body",
-    color: Optional[TextColor] = None,
-    align: Literal["left", "center", "right"] = "left",
-    weight: Literal["light", "normal", "medium", "semibold", "bold", "extrabold"] = "normal",
+    children: Union[str, int, float],
+    size: str = "md",
+    weight: str = "normal",
+    color: Optional[str] = None,
+    align: str = "left",
+    variant: str = "body",
+    class_name: Optional[str] = None,
     **props
 ) -> rx.Component:
     """
-    Modern text component with typography variants.
+    Modern text component following the design system.
     
     Args:
         children: Text content
-        variant: Typography variant
-        color: Text color variant
-        align: Text alignment
-        weight: Font weight
-        **props: Additional text props
+        size: Text size token (xs, sm, md, lg, xl, 2xl, 3xl)
+        weight: Font weight (normal, medium, semibold, bold, extrabold)
+        color: Text color (uses semantic color if provided, otherwise text_primary)
+        align: Text alignment (left, center, right)
+        variant: Text variant (body, heading, caption)
+        class_name: Additional CSS class names
+        **props: Additional props
     
     Returns:
-        rx.Component: Styled text component
+        A styled Text component
     """
     
-    # Variant configurations
-    variant_config = {
-        "h1": {"size": "9", "component": "heading", "font_weight": "800"},
-        "h2": {"size": "8", "component": "heading", "font_weight": "700"},
-        "h3": {"size": "7", "component": "heading", "font_weight": "600"},
-        "h4": {"size": "6", "component": "heading", "font_weight": "600"},
-        "h5": {"size": "5", "component": "heading", "font_weight": "500"},
-        "h6": {"size": "4", "component": "heading", "font_weight": "500"},
-        "body": {"size": "3", "component": "text", "font_weight": "400"},
-        "small": {"size": "2", "component": "text", "font_weight": "400"},
-        "caption": {"size": "1", "component": "text", "font_weight": "400"},
-        "overline": {"size": "1", "component": "text", "font_weight": "500", "text_transform": "uppercase", "letter_spacing": "0.1em"}
-    }
-    
-    # Color configurations
-    color_config = {
-        "primary": colors["text"],
-        "secondary": colors["textSecondary"],
-        "muted": colors["textMuted"],
-        "disabled": colors["textDisabled"],
+    # Color mapping for semantic colors
+    color_map = {
+        "primary": colors["text_primary"],
+        "secondary": colors["text_secondary"],
+        "muted": colors["text_muted"],
+        "disabled": colors["text_disabled"],
         "error": colors["error"],
         "success": colors["success"],
-        "warning": colors["warning"]
+        "warning": colors["warning"],
+        "info": colors["info"],
     }
     
-    config = variant_config[variant]
-    component_type = config["component"]
+    # Get text styles
+    text_color = color_map.get(color) if color else colors["text_primary"]
+    text_styles = get_text_styles(
+        size=size,
+        weight=weight,
+        color=text_color
+    )
     
-    # Build text styles
-    text_styles = {
-        "color": color_config.get(color, colors["text"]),
-        "text_align": align,
-        "font_weight": config.get("font_weight", weight),
-        "line_height": "1.5",
-        "letter_spacing": "-0.025em"
-    }
+    # Add alignment
+    text_styles["text_align"] = align
     
-    # Add variant-specific styles
-    if "text_transform" in config:
-        text_styles["text_transform"] = config["text_transform"]
-    if "letter_spacing" in config:
-        text_styles["letter_spacing"] = config["letter_spacing"]
-    
-    # Create component based on type
-    if component_type == "heading":
-        return rx.heading(
-            children,
-            size=config["size"],
-            style=text_styles,
-            **props
-        )
+    # Merge additional styles from props
+    if "style" in props:
+        for key, value in props["style"].items():
+            text_styles[key] = value
+        props.pop("style")
     
     return rx.text(
-        children,
-        size=config["size"],
+        str(children),
+        size=typography["sizes"].get(size, typography["sizes"]["md"]),
         style=text_styles,
+        class_name=class_name,
+        **props
+    )
+
+def Heading(
+    children: Union[str, int, float],
+    level: int = 2,
+    size: Optional[str] = None,
+    weight: str = "semibold",
+    color: Optional[str] = None,
+    align: str = "left",
+    class_name: Optional[str] = None,
+    **props
+) -> rx.Component:
+    """
+    Heading component following the design system.
+    
+    Args:
+        children: Heading content
+        level: Heading level (1-6)
+        size: Override size (if not provided, uses level-based sizing)
+        weight: Font weight (normal, medium, semibold, bold, extrabold)
+        color: Text color (uses semantic color if provided, otherwise text_primary)
+        align: Text alignment (left, center, right)
+        class_name: Additional CSS class names
+        **props: Additional props
+    
+    Returns:
+        A styled Heading component
+    """
+    
+    # Level-based size mapping if size not provided
+    level_size_map = {
+        1: "3xl",  # Largest
+        2: "2xl",
+        3: "xl",
+        4: "lg",
+        5: "lg2",
+        6: "md"
+    }
+    
+    heading_size = size or level_size_map.get(level, "lg")
+    
+    # Color mapping
+    color_map = {
+        "primary": colors["text_primary"],
+        "secondary": colors["text_secondary"],
+        "muted": colors["text_muted"],
+        "disabled": colors["text_disabled"],
+        "error": colors["error"],
+        "success": colors["success"],
+        "warning": colors["warning"],
+        "info": colors["info"],
+    }
+    
+    # Get text styles
+    text_color = color_map.get(color) if color else colors["text_primary"]
+    heading_styles = get_text_styles(
+        size=heading_size,
+        weight=weight,
+        color=text_color,
+        line_height="tight"
+    )
+    
+    # Add alignment
+    heading_styles["text_align"] = align
+    
+    # Merge additional styles from props
+    if "style" in props:
+        for key, value in props["style"].items():
+            heading_styles[key] = value
+        props.pop("style")
+    
+    return rx.heading(
+        str(children),
+        size=typography["sizes"].get(heading_size, typography["sizes"]["lg"]),
+        style=heading_styles,
+        class_name=class_name,
+        **props
+    )
+
+def Caption(
+    children: Union[str, int, float],
+    color: Optional[str] = "muted",
+    align: str = "left",
+    class_name: Optional[str] = None,
+    **props
+) -> rx.Component:
+    """
+    Caption text component for small descriptive text.
+    
+    Args:
+        children: Caption content
+        color: Text color (defaults to muted)
+        align: Text alignment (left, center, right)
+        class_name: Additional CSS class names
+        **props: Additional props
+    
+    Returns:
+        A styled Caption component
+    """
+    
+    return Text(
+        children,
+        size="xs",
+        weight="normal",
+        color=color or "muted",
+        align=align,
+        class_name=class_name,
+        **props
+    )
+
+def Label(
+    children: Union[str, int, float],
+    required: bool = False,
+    color: Optional[str] = None,
+    class_name: Optional[str] = None,
+    **props
+) -> rx.Component:
+    """
+    Label component for form fields and UI labels.
+    
+    Args:
+        children: Label content
+        required: Whether to show required indicator
+        color: Text color (defaults to text_primary)
+        class_name: Additional CSS class names
+        **props: Additional props
+    
+    Returns:
+        A styled Label component
+    """
+    
+    label_content = [str(children)]
+    
+    if required:
+        label_content.extend([
+            " ",
+            rx.text(
+                "*",
+                color=colors["error"],
+                style={"display": "inline"}
+            )
+        ])
+    
+    return rx.label(
+        *label_content,
+        size=typography["sizes"]["sm"],
+        color=colors["text_primary"] if not color else colors.get(color, color),
+        font_weight=typography["weights"]["medium"],
+        class_name=class_name,
         **props
     )

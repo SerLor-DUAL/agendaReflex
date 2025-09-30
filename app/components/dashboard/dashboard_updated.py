@@ -9,15 +9,15 @@ import reflex as rx
 from typing import List
 
 # Import design system components and styles
-from app.utils.styles import (
+from ...utils.styles import (
     colors, 
     spacing, 
-    get_container_styles, 
-    get_grid_styles,
-    get_flex_styles
+    typography,
+    get_card_styles,
+    get_button_styles,
+    get_text_styles
 )
-from app.components.shared.ui.card import Card, StatsCard, CardHeader, CardBody
-from app.components.shared.ui.button import Button, IconButton
+from ..shared import Card, CardHeader, CardBody, Button
 
 # Mock data for demonstration
 STATS = [
@@ -50,7 +50,7 @@ STATS = [
         "value": "94.5%", 
         "change": "-2.1%", 
         "trend": "down", 
-        "icon": "check-circle",
+        "icon": "circle-check",
         "subtitle": "Last 30 days"
     },
 ]

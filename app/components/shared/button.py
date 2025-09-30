@@ -1,165 +1,169 @@
+"""
+Button Component
+
+This module provides a reusable Button component that leverages the design system
+for consistent styling and behavior throughout the application.
+"""
+
 import reflex as rx
-from typing import Literal, Optional
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_button_styles
+from typing import List, Union, Optional, Callable, Any
 
-colors = ColorPallet().colors
-
-ButtonVariant = Literal["primary", "secondary", "outline", "ghost", "destructive"]
-ButtonSize = Literal["xs", "sm", "md", "lg", "xl"]
+# Import styles from the design system
+from app.utils.styles import get_button_styles
 
 def Button(
-    children: Optional[str] = None,
-    variant: ButtonVariant = "primary",
-    size: ButtonSize = "md",
-    loading: bool = False,
-    disabled: bool = False,
-    width: str = "auto",
-    icon_left: Optional[str] = None,
-    icon_right: Optional[str] = None,
-    **props
+    children: Union[str, List[rx.Component]],
+    variant: str = "primary",
+    size: str = "md",
+    on_click: Optional[Callable] = None,
+    icon: Optional[str] = None,
+    icon_position: str = "left",
+    is_loading: bool = False,
+    is_disabled: bool = False,
+    full_width: bool = False,
+    class_name: Optional[str] = None,
+    **kwargs
 ) -> rx.Component:
     """
-    Modern button component with multiple variants and sizes.
+    Primary Button component following the design system.
     
     Args:
-        children: Button text/content
-        variant: Button style variant
-        size: Button size
-        loading: Loading state
-        disabled: Disabled state
-        width: Button width
-        icon_left: Icon on the left side
-        icon_right: Icon on the right side
-        **props: Additional button props
-    
-    Returns:
-        rx.Component: Styled button component
-    """
-    
-    # Size configurations
-    size_config = {
-        "xs": {"height": "28px", "padding": "4px 8px", "font_size": "12px"},
-        "sm": {"height": "32px", "padding": "6px 12px", "font_size": "13px"},
-        "md": {"height": "36px", "padding": "8px 16px", "font_size": "14px"},
-        "lg": {"height": "40px", "padding": "10px 20px", "font_size": "15px"},
-        "xl": {"height": "44px", "padding": "12px 24px", "font_size": "16px"}
-    }
-    
-    # Variant configurations
-    variant_config = {
-        "primary": {
-            "background": colors["gradientPrimary"],
-            "color": colors["text"],
-            "border": "none",
-            "hover_bg": colors["primaryHover"]
-        },
-        "secondary": {
-            "background": colors["secondary"],
-            "color": colors["textSecondary"],
-            "border": f"1px solid {colors['border']}",
-            "hover_bg": colors["surface"]
-        },
-        "outline": {
-            "background": "transparent",
-            "color": colors["primary"],
-            "border": f"2px solid {colors['primary']}",
-            "hover_bg": colors["primary"],
-            "hover_color": colors["text"]
-        },
-        "ghost": {
-            "background": "transparent",
-            "color": colors["text"],
-            "border": "none",
-            "hover_bg": colors["surface"]
-        },
-        "destructive": {
-            "background": colors["error"],
-            "color": colors["text"],
-            "border": "none",
-            "hover_bg": "#DC2626"
-        }
-    }
-    
-    config = variant_config[variant]
-    sizing = size_config[size]
-    
-    # Build button styles
-    button_styles = {
-        **get_modern_button_styles(),
-        "background": config["background"],
-        "color": config["color"],
-        "border": config["border"],
-        "height": sizing["height"],
-        "padding": sizing["padding"],
-        "font_size": sizing["font_size"],
-        "min_width": "auto",
-        "width": width,
-        "_hover": {
-            "background": config["hover_bg"],
-            "color": config.get("hover_color", config["color"]),
-            "transform": "translateY(-1px)",
-            "box_shadow": f"0 4px 12px {colors['focusRing']}"
-        },
-        "_disabled": {
-            "opacity": "0.5",
-            "cursor": "not-allowed",
-            "transform": "none"
-        }
-    }
-    
-    # Build button content
-    button_content = []
-    
-    # Add left icon if present
-    if icon_left:
-        if children:
-            icon_left_style = {"margin_right": "8px"}
-        else:
-            icon_left_style = {"margin_right": "0"}
-        button_content.append(
-            rx.icon(icon_left, size=16, style=icon_left_style)
-        )
-    
-    # Add loading spinner
-    if children:
-        spinner_style = {"margin_right": "8px"}
-    else:
-        spinner_style = {"margin_right": "0"}
+        children: Button content (text or components)
+        variant: Button style variant (primary, secondary, outline, ghost, danger)
+        size: Button size (sm, md, lg)
+        on_click: Function to call when the button is clicked
+        icon: Optional icon name to display
+        icon_position: Position of the icon (left or right)
+        is_loading: Whether to show a loading state
+        is_disabled: Whether the button is disabled
+        full_width: Whether the button should take full width
+        class_name: Additional CSS class names
+        **kwargs: Additional props to pass to the button element
         
-    button_content.append(
-        rx.cond(
-            loading,
-            rx.spinner(size="1", style=spinner_style),
-            rx.fragment(),
-        )
+    Returns:
+        A styled Button component
+    """
+    # Get style dictionary based on props
+    button_styles = get_button_styles(
+        variant=variant,
+        size=size,
+        full_width=full_width,
+        disabled=is_disabled
     )
     
-    # Add text content
-    if children:
-        button_content.append(rx.text(children, style={"font_weight": "500"}))
+    # Merge additional styles from kwargs
+    if "style" in kwargs:
+        for key, value in kwargs["style"].items():
+            button_styles[key] = value
+        kwargs.pop("style")
     
-    # Add right icon if present
-    if icon_right:
-        if children:
-            icon_right_style = {"margin_left": "8px"}
-        else:
-            icon_right_style = {"margin_left": "0"}
-        button_content.append(
-            rx.icon(icon_right, size=16, style=icon_right_style)
-        )
+    # Handle button content
+    button_content = []
     
-    # Create button content
-    if len(button_content) > 1:
-        final_content = rx.hstack(*button_content, align="center", spacing="0")
-    elif button_content:
-        final_content = button_content[0]
+    # Add icon if provided
+    if icon and not is_loading and icon_position == "left":
+        button_content.append(rx.icon(icon, font_size="1em"))
+    
+    # Add button text or children
+    if isinstance(children, str):
+        button_content.append(rx.text(children))
     else:
-        final_content = None
+        if isinstance(children, list):
+            button_content.extend(children)
+        else:
+            button_content.append(children)
     
+    # Add icon at the end if specified
+    if icon and not is_loading and icon_position == "right":
+        button_content.append(rx.icon(icon, font_size="1em"))
+    
+    # Replace content with loading spinner if in loading state
+    if is_loading:
+        button_content = [
+            rx.spinner(color="currentColor", size="sm", thickness="2px"),
+            rx.text("Loading...")
+        ]
+    
+    # Return the button component
     return rx.button(
-        final_content,
+        *button_content,
+        on_click=on_click,
+        disabled=is_disabled,
         style=button_styles,
-        disabled=disabled or loading,
-        **props
+        class_name=class_name,
+        **kwargs
+    )
+
+def IconButton(
+    icon: str,
+    variant: str = "primary",
+    size: str = "md",
+    on_click: Optional[Callable] = None,
+    aria_label: Optional[str] = None,
+    is_loading: bool = False,
+    is_disabled: bool = False,
+    class_name: Optional[str] = None,
+    **kwargs
+) -> rx.Component:
+    """
+    Icon-only Button component following the design system.
+    
+    Args:
+        icon: Icon name to display
+        variant: Button style variant (primary, secondary, outline, ghost, danger)
+        size: Button size (sm, md, lg)
+        on_click: Function to call when the button is clicked
+        aria_label: Accessibility label for the button
+        is_loading: Whether to show a loading state
+        is_disabled: Whether the button is disabled
+        class_name: Additional CSS class names
+        **kwargs: Additional props to pass to the button element
+        
+    Returns:
+        A styled IconButton component
+    """
+    # Get base styles
+    button_styles = get_button_styles(
+        variant=variant,
+        size=size,
+        disabled=is_disabled
+    )
+    
+    # Adjust for icon-only styling
+    icon_sizes = {
+        "sm": "16px",
+        "md": "20px",
+        "lg": "24px"
+    }
+    
+    # Set fixed width/height to make the button square
+    size_value = {
+        "sm": "32px",
+        "md": "40px",
+        "lg": "48px"
+    }
+    
+    # Add icon-specific styles
+    button_styles.update({
+        "width": size_value.get(size, size_value["md"]),
+        "height": size_value.get(size, size_value["md"]),
+        "padding": "0",
+        "aspect_ratio": "1/1",
+        "display": "inline-flex",
+        "align_items": "center",
+        "justify_content": "center"
+    })
+    
+    # Handle loading state
+    icon_content = rx.spinner(color="currentColor", size="sm") if is_loading else rx.icon(icon, font_size=icon_sizes.get(size, "20px"))
+    
+    # Return the icon button
+    return rx.button(
+        icon_content,
+        on_click=on_click,
+        disabled=is_disabled,
+        style=button_styles,
+        aria_label=aria_label or f"{icon} button",
+        class_name=class_name,
+        **kwargs
     )

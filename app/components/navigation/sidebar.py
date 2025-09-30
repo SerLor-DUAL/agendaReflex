@@ -1,82 +1,82 @@
 import reflex as rx
 from typing import List, Dict
 from ...state.app_state import AppState
-from ...utils.styles.modern_styles import get_modern_card_styles, get_modern_text_styles
-from ...utils.styles.colorPallet import ColorPallet
-
-colors = ColorPallet().colors
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_nav_link_styles, get_text_styles
 
 def _nav_item(
     icon: str,
     label: str,
     view_name: str,
-    is_active: bool = False
+    is_active = False
 ) -> rx.Component:
-    """Single navigation item."""
+    """Single navigation item using new design system."""
+    # Use rx.cond to handle active state styling
+    base_styles = {
+        "display": "flex",
+        "align_items": "center",
+        "padding": spacing["sm"],
+        "border_radius": "8px",
+        "text_decoration": "none",
+        "transition": "all 0.2s ease",
+        "gap": spacing["sm"],
+        "font_weight": "500",
+        "cursor": "pointer",
+        "width": "100%"
+    }
+    
     return rx.box(
         rx.hstack(
-            rx.icon(
-                icon,
-                size=18,
-                color=rx.cond(
-                    is_active,
-                    colors["primary"],
-                    colors["textSecondary"]
+            rx.cond(
+                is_active,
+                rx.icon(
+                    icon,
+                    size=18,
+                    color=colors["primary"]
+                ),
+                rx.icon(
+                    icon,
+                    size=18,
+                    color=colors["text_secondary"]
                 )
             ),
             rx.cond(
                 ~AppState.sidebar_collapsed,
-                rx.text(
-                    label,
-                    style={
-                        **get_modern_text_styles(colors, "body"),
-                        "color": rx.cond(
-                            is_active,
-                            colors["text"],
-                            colors["textSecondary"]
-                        ),
-                        "font_weight": rx.cond(
-                            is_active,
-                            "500",
-                            "400"
-                        ),
-                        "transition": "all 0.2s ease"
-                    }
+                rx.cond(
+                    is_active,
+                    rx.text(
+                        label,
+                        size=typography["sizes"]["sm"],
+                        color=colors["text_primary"],
+                        font_weight=typography["weights"]["medium"]
+                    ),
+                    rx.text(
+                        label,
+                        size=typography["sizes"]["sm"],
+                        color=colors["text_secondary"],
+                        font_weight=typography["weights"]["normal"]
+                    )
                 )
             ),
-            spacing="3",
+            spacing=spacing["sm"],
             align="center",
             width="100%"
         ),
         on_click=lambda: AppState.navigate_to(view_name),
-        style={
-            "padding": "12px 16px",
-            "border_radius": "12px",
-            "cursor": "pointer",
-            "transition": "all 0.2s cubic-bezier(0.4,0,0.2,1)",
-            "background": rx.cond(
-                is_active,
-                colors["primary"] + "20",
-                "transparent"
-            ),
-            "border": rx.cond(
-                is_active,
-                f"1px solid {colors['primary']}40",
-                "1px solid transparent"
-            ),
-            "_hover": {
-                "background": rx.cond(
-                    is_active,
-                    colors["primary"] + "20",
-                    colors["surface"]
-                ),
-                "transform": rx.cond(
-                    is_active,
-                    "none",
-                    "translateX(4px)"
-                ),
+        style=rx.cond(
+            is_active,
+            {
+                **base_styles,
+                "background": colors["primary"],
+                "color": colors["text_primary"],
+            },
+            {
+                **base_styles,
+                "_hover": {
+                    "background": colors["hover_overlay"],
+                    "color": colors["text_primary"],
+                }
             }
-        },
+        ),
         width="100%"
     )
 
@@ -87,11 +87,12 @@ def _nav_section(title: str, items: List[Dict]) -> rx.Component:
             ~AppState.sidebar_collapsed,
             rx.text(
                 title,
+                size=typography["sizes"]["xs"],
+                color=colors["text_muted"],
+                font_weight=typography["weights"]["semibold"],
                 style={
-                    **get_modern_text_styles(colors, "caption"),
                     "text_transform": "uppercase",
                     "letter_spacing": "0.1em",
-                    "font_weight": "600",
                     "margin_bottom": "8px",
                     "padding": "0 16px"
                 }
@@ -126,7 +127,7 @@ def _stats_card() -> rx.Component:
                     rx.text(
                         "Quick Stats",
                         style={
-                            **get_modern_text_styles(colors, "caption"),
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                             "font_weight": "600"
                         }
                     ),
@@ -136,11 +137,11 @@ def _stats_card() -> rx.Component:
                 rx.divider(color=colors["border"]),
                 rx.vstack(
                     rx.hstack(
-                        rx.text("Clients:", style=get_modern_text_styles(colors, "caption")),
+                        rx.text("Clients:", style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"])),
                         rx.text(
                             AppState.clients_stats["total"],
                             style={
-                                **get_modern_text_styles(colors, "caption"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "color": colors["primary"],
                                 "font_weight": "600"
                             }
@@ -149,11 +150,11 @@ def _stats_card() -> rx.Component:
                         width="100%"
                     ),
                     rx.hstack(
-                        rx.text("Orders:", style=get_modern_text_styles(colors, "caption")),
+                        rx.text("Orders:", style=get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"])),
                         rx.text(
                             AppState.orders_stats["total"],
                             style={
-                                **get_modern_text_styles(colors, "caption"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "color": colors["success"],
                                 "font_weight": "600"
                             }
@@ -169,7 +170,7 @@ def _stats_card() -> rx.Component:
                 width="100%"
             ),
             style={
-                **get_modern_card_styles(colors),
+                **get_card_styles(),
                 "padding": "16px",
                 "margin_top": "16px"
             }
@@ -182,7 +183,7 @@ def _toggle_button() -> rx.Component:
         rx.icon(
             "chevron-left",
             size=18,
-            color=colors["textSecondary"],
+            color=colors["text_secondary"],
             style={
                 "transform": rx.cond(
                     AppState.sidebar_collapsed,
@@ -199,7 +200,7 @@ def _toggle_button() -> rx.Component:
             "right": "-12px",
             "width": "24px",
             "height": "24px",
-            "background": colors["cards"],
+            "background": colors["surface"],
             "border": f"1px solid {colors['border']}",
             "border_radius": "50%",
             "display": "flex",
@@ -209,7 +210,7 @@ def _toggle_button() -> rx.Component:
             "transition": "all 0.2s ease",
             "_hover": {
                 "background": colors["surface"],
-                "border_color": colors["borderLight"]
+                "border_color": colors["border_light"]
             }
         }
     )
@@ -249,7 +250,7 @@ def Sidebar() -> rx.Component:
                             rx.text(
                                 "IntegraQS",
                                 style={
-                                    **get_modern_text_styles(colors, "subheading"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "font_weight": "700",
                                     "line_height": "1.2"
                                 }
@@ -257,7 +258,7 @@ def Sidebar() -> rx.Component:
                             rx.text(
                                 "Pro ERP",
                                 style={
-                                    **get_modern_text_styles(colors, "caption"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "margin_top": "-4px",
                                     "color": colors["primary"]
                                 }
@@ -301,7 +302,7 @@ def Sidebar() -> rx.Component:
                             rx.icon(
                                 "user",
                                 size=16,
-                                color=colors["textSecondary"]
+                                color=colors["text_secondary"]
                             ),
                             style={
                                 "width": "32px",
@@ -317,7 +318,7 @@ def Sidebar() -> rx.Component:
                             rx.text(
                                 "Administrator",
                                 style={
-                                    **get_modern_text_styles(colors, "body"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "font_weight": "500",
                                     "line_height": "1.2"
                                 }
@@ -325,7 +326,7 @@ def Sidebar() -> rx.Component:
                             rx.text(
                                 "Online",
                                 style={
-                                    **get_modern_text_styles(colors, "caption"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "color": colors["success"],
                                     "margin_top": "-2px"
                                 }
@@ -359,9 +360,9 @@ def Sidebar() -> rx.Component:
         style={
             "width": rx.cond(AppState.sidebar_collapsed, "80px", "280px"),
             "transition": "width 0.3s cubic-bezier(0.4,0,0.2,1)",
-            "background": colors["glassBackground"],
+            "background": colors["surface"],
             "backdrop_filter": "blur(20px)",
-            "border_right": f"1px solid {colors['glassBorder']}",
+                            "border_right": f"1px solid {colors['border']}",
             "box_shadow": "2px 0 10px rgba(0,0,0,0.1)",
             "position": "fixed",
             "left": "0",

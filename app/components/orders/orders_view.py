@@ -1,11 +1,18 @@
 import reflex as rx
 from typing import Dict, Any
 from ...state.app_state import AppState
-from ...utils.styles.modern_styles import get_modern_card_styles, get_modern_text_styles, get_modern_input_styles, get_modern_button_styles, get_button_variant, get_button_size
-from ...utils.styles.colorPallet import ColorPallet
-from ..shared.card import Card, CardHeader, CardBody, CardFooter
+from ...utils.styles import (
+    colors, 
+    spacing, 
+    typography, 
+    get_card_styles, 
+    get_button_styles,
+    get_input_styles,
+    get_text_styles
+)
+from ..shared import Card, CardHeader, CardBody, CardFooter
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def _order_status_badge(status: str) -> rx.Component:
     """Order status badge with appropriate colors."""
@@ -16,15 +23,15 @@ def _order_status_badge(status: str) -> rx.Component:
     }
     
     config = status_config.get(status, {
-        "color": colors["textMuted"],
-        "bg": f"{colors['textMuted']}20"
+        "color": colors["text_muted"],
+        "bg": f"{colors['text_muted']}20"
     })
     
     return rx.box(
         rx.text(
             status,
             style={
-                **get_modern_text_styles(colors, "caption"),
+                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                 "color": config["color"],
                 "font_weight": "500",
                 "text_transform": "capitalize"
@@ -47,7 +54,7 @@ def _search_and_filters() -> rx.Component:
         rx.box(
             rx.hstack(
                 rx.box(
-                    rx.icon("search", size=18, color=colors["textMuted"]),
+                    rx.icon("search", size=18, color=colors["text_muted"]),
                     style={
                         "position": "absolute",
                         "left": "12px",
@@ -61,7 +68,7 @@ def _search_and_filters() -> rx.Component:
                     value=AppState.orders_search_query,
                     on_change=AppState.set_orders_search_query,
                     style={
-                        **get_modern_input_styles(),
+                        **get_input_styles(),
                         "padding_left": "44px",
                         "width": "100%"
                     }
@@ -72,16 +79,14 @@ def _search_and_filters() -> rx.Component:
                 rx.text(
                     "Create Order",
                     style={
-                        **get_modern_text_styles(colors, "body"),
-                        "color": colors["text"],
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_primary"],
                         "font_weight": "500"
                     }
                 ),
                 on_click=lambda: AppState.open_order_modal(""),
                 style={
-                    **get_modern_button_styles(),
-                    **get_button_variant("primary"),
-                    **get_button_size("md"),
+                    **get_button_styles(variant="primary", size="md"),
                     "display": "flex",
                     "align_items": "center",
                     "justify_content": "center",
@@ -102,8 +107,8 @@ def _search_and_filters() -> rx.Component:
             rx.text(
                 "Filter by status:",
                 style={
-                    **get_modern_text_styles(colors, "body"),
-                    "color": colors["textMuted"],
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                    "color": colors["text_muted"],
                     "font_weight": "500"
                 }
             ),
@@ -112,7 +117,7 @@ def _search_and_filters() -> rx.Component:
                     rx.text(
                         "All",
                         style={
-                            **get_modern_text_styles(colors, "body"),
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                             "color": colors["primary"],
                             "font_weight": "500"
                         }
@@ -134,8 +139,8 @@ def _search_and_filters() -> rx.Component:
                     rx.text(
                         "Pending",
                         style={
-                            **get_modern_text_styles(colors, "body"),
-                            "color": colors["textSecondary"],
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                            "color": colors["text_secondary"],
                             "font_weight": "500"
                         }
                     ),
@@ -156,8 +161,8 @@ def _search_and_filters() -> rx.Component:
                     rx.text(
                         "Completed",
                         style={
-                            **get_modern_text_styles(colors, "body"),
-                            "color": colors["textSecondary"],
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                            "color": colors["text_secondary"],
                             "font_weight": "500"
                         }
                     ),
@@ -178,8 +183,8 @@ def _search_and_filters() -> rx.Component:
                     rx.text(
                         "Cancelled",
                         style={
-                            **get_modern_text_styles(colors, "body"),
-                            "color": colors["textSecondary"],
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                            "color": colors["text_secondary"],
                             "font_weight": "500"
                         }
                     ),
@@ -218,7 +223,7 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     f"#{order.get('id', 'N/A')}",
                     style={
-                        **get_modern_text_styles(colors, "body"),
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                         "font_weight": "600",
                         "color": colors["primary"]
                     }
@@ -226,8 +231,8 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     order.get("created_at", "Unknown"),
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 align="start",
@@ -240,15 +245,15 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     order.get("client_name", "Unknown Client"),
                     style={
-                        **get_modern_text_styles(colors, "body"),
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                         "font_weight": "500"
                     }
                 ),
                 rx.text(
                     "Client",
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 align="start",
@@ -262,7 +267,7 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     order.get("description", "No description"),
                     style={
-                        **get_modern_text_styles(colors, "body"),
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                         "overflow": "hidden",
                         "text_overflow": "ellipsis",
                         "white_space": "nowrap",
@@ -272,8 +277,8 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     "Description",
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 align="start",
@@ -287,7 +292,7 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     f"€{order.get('amount', 0):,.2f}",
                     style={
-                        **get_modern_text_styles(colors, "body"),
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                         "font_weight": "600",
                         "color": colors["success"]
                     }
@@ -295,8 +300,8 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     "Amount",
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 align="start",
@@ -310,8 +315,8 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     "Status",
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 align="start",
@@ -322,7 +327,7 @@ def _order_row(order: Dict[str, Any]) -> rx.Component:
             # Actions
             rx.hstack(
                 rx.box(
-                    rx.icon("settings", size=14, color=colors["textMuted"]),
+                    rx.icon("settings", size=14, color=colors["text_muted"]),
                     on_click=lambda order_id=str(order.get("id", "")): AppState.open_order_modal(order_id),
                     style={
                         "padding": "8px",
@@ -373,18 +378,18 @@ def _orders_table_header() -> rx.Component:
             rx.text(
                 "Order ID",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 min_width="120px"
             ),
             rx.text(
                 "Client",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 flex="1",
                 min_width="150px"
@@ -392,9 +397,9 @@ def _orders_table_header() -> rx.Component:
             rx.text(
                 "Description",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 flex="2",
                 min_width="200px"
@@ -402,27 +407,27 @@ def _orders_table_header() -> rx.Component:
             rx.text(
                 "Amount",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 min_width="120px"
             ),
             rx.text(
                 "Status",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 min_width="100px"
             ),
             rx.text(
                 "Actions",
                 style={
-                    **get_modern_text_styles(colors, "body"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 },
                 min_width="80px"
             ),
@@ -434,7 +439,7 @@ def _orders_table_header() -> rx.Component:
         style={
             "padding": "20px",
             "border_bottom": f"2px solid {colors['border']}",
-            "background": colors["cards"]
+            "background": colors["surface"]
         }
     )
 
@@ -459,21 +464,21 @@ def _orders_table() -> rx.Component:
                             rx.icon(
                                 "shopping-bag",
                                 size=48,
-                                color=colors["textMuted"]
+                                color=colors["text_muted"]
                             ),
                             rx.text(
                                 "No orders found",
                                 style={
-                                    **get_modern_text_styles(colors, "subheading"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "font_weight": "600",
-                                    "color": colors["textMuted"]
+                                    "color": colors["text_muted"]
                                 }
                             ),
                             rx.text(
                                 "Create your first order to get started",
                                 style={
-                                    **get_modern_text_styles(colors, "body"),
-                                    "color": colors["textMuted"]
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                    "color": colors["text_muted"]
                                 }
                             ),
                             spacing="3",
@@ -503,15 +508,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Total Orders",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.orders_stats["total"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["primary"]
@@ -536,15 +541,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Pending",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.orders_stats["pending"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["warning"]
@@ -569,15 +574,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Completed",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.orders_stats["completed"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["success"]
@@ -602,15 +607,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Cancelled",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.orders_stats["cancelled"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["error"]
@@ -644,7 +649,7 @@ def OrdersView() -> rx.Component:
                     rx.text(
                         "Order Management",
                         style={
-                            **get_modern_text_styles(colors, "heading"),
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                             "font_size": "28px",
                             "font_weight": "700"
                         }
@@ -652,8 +657,8 @@ def OrdersView() -> rx.Component:
                     rx.text(
                         "Track and manage all your orders from creation to completion.",
                         style={
-                            **get_modern_text_styles(colors, "body"),
-                            "color": colors["textMuted"]
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                            "color": colors["text_muted"]
                         }
                     ),
                     align="start",
@@ -661,12 +666,12 @@ def OrdersView() -> rx.Component:
                 ),
                 rx.box(
                     rx.hstack(
-                        rx.icon("download", size=16, color=colors["textSecondary"]),
+                        rx.icon("download", size=16, color=colors["text_secondary"]),
                         rx.text(
                             "Export",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textSecondary"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_secondary"],
                                 "font_weight": "500"
                             }
                         ),
@@ -674,9 +679,7 @@ def OrdersView() -> rx.Component:
                         align="center"
                     ),
                     style={
-                        **get_modern_button_styles(),
-                        **get_button_variant("ghost"),
-                        **get_button_size("sm"),
+                        **get_button_styles(variant="ghost", size="sm"),
                         "display": "flex",
                         "align_items": "center",
                         "justify_content": "center"

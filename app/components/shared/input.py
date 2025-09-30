@@ -1,106 +1,70 @@
+"""
+Input Component
+
+This module provides reusable Input components that leverage the design system
+for consistent styling throughout the application.
+"""
+
 import reflex as rx
-from typing import Literal, Optional
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_input_styles
+from typing import List, Union, Optional, Callable, Any
 
-colors = ColorPallet().colors
-
-InputSize = Literal["sm", "md", "lg"]
-InputVariant = Literal["default", "filled", "flushed"]
+# Import styles from the design system
+from app.utils.styles import get_input_styles, spacing, colors
 
 def Input(
     placeholder: str = "",
     value = None,
     on_change = None,
     type_: str = "text",
-    size: InputSize = "md",
-    variant: InputVariant = "default",
+    size: str = "md",
+    variant: str = "default",
     disabled: bool = False,
     error: bool = False,
     icon_left: Optional[str] = None,
     icon_right: Optional[str] = None,
     width: str = "100%",
+    class_name: Optional[str] = None,
     **props
 ) -> rx.Component:
     """
-    Modern input component with multiple variants and states.
+    Modern input component following the design system.
     
     Args:
         placeholder: Input placeholder text
         value: Input value
         on_change: Change handler
         type_: Input type (text, password, email, etc.)
-        size: Input size
-        variant: Input variant style
+        size: Input size (sm, md, lg)
+        variant: Input variant style (default, filled)
         disabled: Disabled state
         error: Error state
         icon_left: Icon on the left side
         icon_right: Icon on the right side
         width: Input width
+        class_name: Additional CSS class names
         **props: Additional input props
     
     Returns:
-        rx.Component: Styled input component
+        A styled Input component
     """
+    # Get style dictionary based on props
+    input_styles = get_input_styles(
+        size=size,
+        variant=variant,
+        error=error,
+        disabled=disabled
+    )
     
-    # Size configurations
-    size_config = {
-        "sm": {"height": "32px", "padding": "6px 12px", "font_size": "13px"},
-        "md": {"height": "36px", "padding": "8px 16px", "font_size": "14px"},
-        "lg": {"height": "40px", "padding": "10px 20px", "font_size": "15px"}
-    }
+    # Apply width
+    input_styles["width"] = width
     
-    config = size_config[size]
+    # Merge additional styles from kwargs
+    if "style" in props:
+        for key, value in props["style"].items():
+            input_styles[key] = value
+        props.pop("style")
     
-    # Build input styles based on variant and state
-    input_styles = {
-        **get_modern_input_styles(),
-        "height": config["height"],
-        "padding": config["padding"],
-        "font_size": config["font_size"],
-        "width": width,
-    }
-    
-    # Apply variant styles
-    if variant == "filled":
-        input_styles.update({
-            "background": colors["surface"],
-            "border": "none",
-            "_focus": {
-                "background": colors["cards"],
-                "box_shadow": f"0 0 0 2px {colors['focus']}"
-            }
-        })
-    elif variant == "flushed":
-        input_styles.update({
-            "background": "transparent",
-            "border": "none",
-            "border_bottom": f"1px solid {colors['border']}",
-            "border_radius": "0",
-            "_focus": {
-                "border_bottom_color": colors["focus"],
-                "box_shadow": f"0 1px 0 0 {colors['focus']}"
-            }
-        })
-    
-    # Apply error styles
-    if error:
-        input_styles.update({
-            "border_color": colors["error"],
-            "_focus": {
-                "border_color": colors["error"],
-                "box_shadow": f"0 0 0 3px {colors['error']}33"
-            }
-        })
-    
-    # Apply disabled styles
-    if disabled:
-        input_styles.update({
-            "opacity": "0.5",
-            "cursor": "not-allowed"
-        })
-    
-    # Build input content
+    # Build input content with icons if provided
     input_children = []
     
     if icon_left:
@@ -109,8 +73,7 @@ def Input(
                 rx.icon(
                     icon_left, 
                     size=16,
-                    color=colors["textMuted"],
-                    style={"transition": "color 0.2s ease"}
+                    color=colors["text_muted"]
                 )
             )
         )
@@ -121,13 +84,13 @@ def Input(
                 rx.icon(
                     icon_right, 
                     size=16,
-                    color=colors["textMuted"],
-                    style={"transition": "color 0.2s ease"}
+                    color=colors["text_muted"]
                 ),
                 side="right"
             )
         )
     
+    # Return the input component
     return rx.input(
         *input_children,
         placeholder=placeholder,
@@ -136,5 +99,71 @@ def Input(
         type=type_,
         disabled=disabled,
         style=input_styles,
+        class_name=class_name,
+        **props
+    )
+
+def TextArea(
+    placeholder: str = "",
+    value = None,
+    on_change = None,
+    size: str = "md",
+    variant: str = "default",
+    disabled: bool = False,
+    error: bool = False,
+    rows: int = 4,
+    resize: str = "vertical",
+    class_name: Optional[str] = None,
+    **props
+) -> rx.Component:
+    """
+    TextArea component following the design system.
+    
+    Args:
+        placeholder: TextArea placeholder text
+        value: TextArea value
+        on_change: Change handler
+        size: TextArea size (sm, md, lg)
+        variant: TextArea variant style (default, filled)
+        disabled: Disabled state
+        error: Error state
+        rows: Number of rows
+        resize: Resize behavior (none, both, horizontal, vertical)
+        class_name: Additional CSS class names
+        **props: Additional props
+    
+    Returns:
+        A styled TextArea component
+    """
+    # Get base input styles
+    textarea_styles = get_input_styles(
+        size=size,
+        variant=variant,
+        error=error,
+        disabled=disabled
+    )
+    
+    # Adjust for textarea-specific styling
+    textarea_styles.update({
+        "resize": resize,
+        "min_height": f"{rows * 1.5}rem",
+        "height": "auto",
+        "padding": spacing["md"]
+    })
+    
+    # Merge additional styles from props
+    if "style" in props:
+        for key, value in props["style"].items():
+            textarea_styles[key] = value
+        props.pop("style")
+    
+    return rx.text_area(
+        placeholder=placeholder,
+        value=value,
+        on_change=on_change,
+        disabled=disabled,
+        rows=rows,
+        style=textarea_styles,
+        class_name=class_name,
         **props
     )

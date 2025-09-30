@@ -1,27 +1,35 @@
 import reflex as rx
 from ...state.app_state import AppState
-from ...utils.styles.design_system import Layout, ComponentStyles, ColorSystem, Spacing, Typography
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import (
+    colors, 
+    spacing, 
+    typography, 
+    get_container_styles,
+    get_card_styles,
+    get_text_styles
+)
+from ...utils.styles.theme import components
 
 from ..navigation.sidebar import Sidebar
-from ..views.dashboard_view import DashboardView
-from ..views.clients_view import ClientsView
-from ..views.orders_view import OrdersView
-
-colors = ColorPallet().colors
+from ..dashboard import dashboard_view as DashboardView
+from ..clients.clients_view import ClientsView
+from ..orders.orders_view import OrdersView
 
 def _analytics_placeholder() -> rx.Component:
     """Placeholder for analytics view."""
     return rx.center(
         rx.vstack(
-            rx.icon("bar-chart-3", size=64, color=colors["textMuted"]),
-            rx.text(
+            rx.icon("bar-chart-3", size=64, color=colors["text_muted"]),
+            rx.heading(
                 "Analytics Coming Soon",
-                style=Typography.get_text_style("h2")
+                size=typography["sizes"]["2xl"],
+                color=colors["text_primary"],
+                font_weight=typography["weights"]["bold"]
             ),
             rx.text(
                 "This section will contain detailed analytics and reporting.",
-                style=Typography.get_text_style("body")
+                size=typography["sizes"]["md"],
+                color=colors["text_secondary"]
             ),
             spacing="6",
             align="center"
@@ -41,7 +49,8 @@ def _toast_notification() -> rx.Component:
                 rx.icon("info", size=18, color=colors["primary"]),
                 rx.text(
                     AppState.toast_message,
-                    style=Typography.get_text_style("body")
+                    size=typography["sizes"]["sm"],
+                    color=colors["text_primary"]
                 ),
                 rx.icon(
                     "x", 
@@ -54,11 +63,11 @@ def _toast_notification() -> rx.Component:
                 width="100%"
             ),
             style={
-                **ComponentStyles.get_card_style(),
+                **get_card_styles(),
                 "position": "fixed",
-                "top": Spacing.lg,
-                "right": Spacing.lg,
-                "z_index": "1000",
+                "top": spacing["lg"],
+                "right": spacing["lg"],
+                "z_index": components["z_index"]["toast"],
                 "max_width": "400px"
             }
         )
@@ -81,7 +90,7 @@ def _main_content() -> rx.Component:
             )
         ),
         style={
-            **Layout.get_page_style(),
+            **get_container_styles(),
             "flex": "1",
             "width": "100%"
         }
@@ -107,7 +116,7 @@ def SPALayout() -> rx.Component:
                     style={
                         "width": rx.cond(AppState.sidebar_collapsed, "80px", "280px"),
                         "transition": "width 0.3s ease",
-                        "background": colors["cards"],
+                        "background": colors["surface"],
                         "border_right": f"1px solid {colors['border']}",
                         "height": "100vh",
                         "position": "fixed",
@@ -144,9 +153,10 @@ def SPALayout() -> rx.Component:
                             on_click=AppState.toggle_mobile_menu,
                             style={"cursor": "pointer"}
                         ),
-                        rx.text(
+                        rx.heading(
                             AppState.page_title,
-                            style=Typography.get_text_style("h3")
+                            size=typography["sizes"]["lg"],
+                            color=colors["text_primary"]
                         ),
                         rx.spacer(),
                         rx.icon("user", size=20),
@@ -155,12 +165,12 @@ def SPALayout() -> rx.Component:
                         width="100%"
                     ),
                     style={
-                        **ComponentStyles.get_card_style(),
+                        **get_card_styles(),
                         "position": "fixed",
                         "top": "0",
                         "left": "0",
                         "right": "0",
-                        "z_index": "200",
+                        "z_index": components["z_index"]["fixed"],
                         "border_radius": "0 0 12px 12px"
                     }
                 ),
@@ -205,7 +215,7 @@ def SPALayout() -> rx.Component:
                             "width": "280px",
                             "height": "100vh",
                             "z_index": "400",
-                            "background": colors["cards"]
+                            "background": colors["surface"]
                         }
                     ),
                     spacing="0"
@@ -217,7 +227,7 @@ def SPALayout() -> rx.Component:
         _toast_notification(),
         
         style={
-            "background": colors["generalBackground"],
+            "background": colors["background"],
             "min_height": "100vh",
             "width": "100%",
             "position": "relative"

@@ -1,9 +1,9 @@
 import reflex as rx
 from typing import Optional
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 from ..shared.card import Card
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def FormContainer(
     *children,
@@ -35,7 +35,7 @@ def FormContainer(
                 title,
                 size="6",
                 style={
-                    "color": colors["text"],
+                    "color": colors["text_primary"],
                     "text_align": "center",
                     "font_weight": "700",
                     "margin_bottom": "8px"
@@ -48,7 +48,7 @@ def FormContainer(
                 rx.text(
                     subtitle,
                     style={
-                        "color": colors["textSecondary"],
+                        "color": colors["text_secondary"],
                         "text_align": "center",
                         "font_size": "14px",
                         "margin_bottom": "24px"
@@ -107,7 +107,7 @@ def FieldGroup(
                 style={
                     "font_weight": "600",
                     "font_size": "14px",
-                    "color": colors["text"],
+                    "color": colors["text_primary"],
                     "margin_bottom": "4px"
                 }
             )
@@ -119,7 +119,7 @@ def FieldGroup(
                 description,
                 style={
                     "font_size": "13px",
-                    "color": colors["textMuted"],
+                    "color": colors["text_muted"],
                     "margin_bottom": "8px"
                 }
             )

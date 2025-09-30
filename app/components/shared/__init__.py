@@ -1,25 +1,59 @@
-# UI Components Library
 """
-Modern UI component library for the IntegraQS application.
+Shared UI Components Library
 
 This module provides a comprehensive set of reusable UI components
-including buttons, inputs, cards, alerts, and text components.
+that follow the design system for consistent styling and behavior.
 """
 
-from .button import Button
-from .input import Input
-from .text import Text
-from .card import Card, CardHeader, CardBody, CardFooter
+# Import all UI components
+from .button import Button, IconButton
+from .card import Card, CardHeader, CardBody, CardFooter, StatsCard
+from .input import Input, TextArea
 from .alert import Alert, Toast
+from .text import Text, Heading, Caption, Label
+from .modal import Modal, ModalHeader, ModalBody, ModalFooter, AlertDialog
+from .spinner import Spinner, LoadingOverlay
+from .badge import Badge, StatusBadge, NotificationBadge
 
 __all__ = [
+    # Button components
     "Button",
-    "Input", 
-    "Text",
+    "IconButton",
+    
+    # Card components
     "Card",
     "CardHeader",
     "CardBody", 
     "CardFooter",
+    "StatsCard",
+    
+    # Input components
+    "Input",
+    "TextArea",
+    
+    # Alert components
     "Alert",
-    "Toast"
+    "Toast",
+    
+    # Text components
+    "Text",
+    "Heading",
+    "Caption",
+    "Label",
+    
+    # Modal components
+    "Modal",
+    "ModalHeader",
+    "ModalBody",
+    "ModalFooter",
+    "AlertDialog",
+    
+    # Loading components
+    "Spinner",
+    "LoadingOverlay",
+    
+    # Badge components
+    "Badge",
+    "StatusBadge",
+    "NotificationBadge",
 ]

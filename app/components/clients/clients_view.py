@@ -1,109 +1,47 @@
 import reflex as rx
 from typing import Dict, Any
 from ...state.app_state import AppState
-from ...utils.styles.modern_styles import get_modern_card_styles, get_modern_text_styles, get_modern_input_styles, get_modern_button_styles, get_button_variant, get_button_size
-from ...utils.styles.colorPallet import ColorPallet
-from ..shared.card import Card, CardHeader, CardBody, CardFooter
-
-colors = ColorPallet().colors
+from ...utils.styles import (
+    colors, 
+    spacing, 
+    typography, 
+    get_card_styles,
+    get_button_styles,
+    get_input_styles,
+    get_badge_styles,
+    get_text_styles
+)
+from ..shared import Card, CardHeader, CardBody, CardFooter, Button, Input, Badge, StatusBadge
 
 def _search_bar() -> rx.Component:
-    """Search bar component."""
+    """Search bar component using new design system."""
     return rx.box(
         rx.hstack(
-            rx.box(
-                rx.icon("search", size=18, color=colors["textMuted"]),
-                style={
-                    "position": "absolute",
-                    "left": "12px",
-                    "top": "50%",
-                    "transform": "translateY(-50%)",
-                    "z_index": "1"
-                }
-            ),
-            rx.input(
+            Input(
                 placeholder="Search clients by name, email or phone...",
                 value=AppState.clients_search_query,
                 on_change=AppState.set_clients_search_query,
-                style={
-                    **get_modern_input_styles(),
-                    "padding_left": "44px",
-                    "width": "100%"
-                }
+                icon_left="search",
+                width="100%"
             ),
-            style={"position": "relative", "flex": "1"}
-        ),
-        rx.box(
-            rx.text(
+            Button(
                 "Add Client",
-                style={
-                    **get_modern_text_styles(colors, "body"),
-                    "color": colors["text"],
-                    "font_weight": "500"
-                }
+                variant="primary",
+                size="md",
+                on_click=lambda: AppState.open_client_modal("")
             ),
-            on_click=lambda: AppState.open_client_modal(""),
-            style={
-                **get_modern_button_styles(),
-                **get_button_variant("primary"),
-                **get_button_size("md"),
-                "display": "flex",
-                "align_items": "center",
-                "justify_content": "center",
-                "gap": "8px",
-                "white_space": "nowrap"
-            }
+            spacing=spacing["md"],
+            align="center",
+            width="100%"
         ),
         style={
-            "display": "flex",
-            "gap": "16px",
-            "align_items": "center",
-            "width": "100%",
-            "margin_bottom": "24px"
+            "margin_bottom": spacing["xl"]
         }
     )
 
 def _client_status_badge(status: str) -> rx.Component:
-    """Client status badge."""
-    return rx.cond(
-        status == "active",
-        rx.box(
-            rx.text(
-                "Active",
-                style={
-                    **get_modern_text_styles(colors, "caption"),
-                    "color": colors["success"],
-                    "font_weight": "500"
-                }
-            ),
-            style={
-                "padding": "4px 12px",
-                "background": f"{colors['success']}20",
-                "border": f"1px solid {colors['success']}40",
-                "border_radius": "20px",
-                "display": "inline-flex",
-                "align_items": "center"
-            }
-        ),
-        rx.box(
-            rx.text(
-                "Inactive",
-                style={
-                    **get_modern_text_styles(colors, "caption"),
-                    "color": colors["textMuted"],
-                    "font_weight": "500"
-                }
-            ),
-            style={
-                "padding": "4px 12px",
-                "background": f"{colors['textMuted']}20",
-                "border": f"1px solid {colors['textMuted']}40",
-                "border_radius": "20px",
-                "display": "inline-flex",
-                "align_items": "center"
-            }
-        )
-    )
+    """Client status badge using new design system."""
+    return StatusBadge(status, size="sm")
 
 def _client_card(client: Dict[str, Any]) -> rx.Component:
     """Individual client card."""
@@ -134,7 +72,7 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                             rx.text(
                                 client.get("name", "Unknown"),
                                 style={
-                                    **get_modern_text_styles(colors, "subheading"),
+                                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                     "font_weight": "600",
                                     "line_height": "1.2"
                                 }
@@ -146,8 +84,8 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                         rx.text(
                             client.get("company", "No company"),
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "margin_top": "-2px"
                             }
                         ),
@@ -166,12 +104,12 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                 # Client details
                 rx.vstack(
                     rx.hstack(
-                        rx.icon("mail", size=16, color=colors["textMuted"]),
+                        rx.icon("mail", size=16, color=colors["text_muted"]),
                         rx.text(
                             client.get("email", "No email"),
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textSecondary"]
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_secondary"]
                             }
                         ),
                         spacing="2",
@@ -179,12 +117,12 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                         width="100%"
                     ),
                     rx.hstack(
-                        rx.icon("phone", size=16, color=colors["textMuted"]),
+                        rx.icon("phone", size=16, color=colors["text_muted"]),
                         rx.text(
                             client.get("phone", "No phone"),
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textSecondary"]
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_secondary"]
                             }
                         ),
                         spacing="2",
@@ -192,12 +130,12 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                         width="100%"
                     ),
                     rx.hstack(
-                        rx.icon("map", size=16, color=colors["textMuted"]),
+                        rx.icon("map", size=16, color=colors["text_muted"]),
                         rx.text(
                             client.get("address", "No address"),
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textSecondary"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_secondary"],
                                 "overflow": "hidden",
                                 "text_overflow": "ellipsis",
                                 "white_space": "nowrap"
@@ -222,14 +160,14 @@ def _client_card(client: Dict[str, Any]) -> rx.Component:
                 rx.text(
                     "Created recently",
                     style={
-                        **get_modern_text_styles(colors, "caption"),
-                        "color": colors["textMuted"]
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                        "color": colors["text_muted"]
                     }
                 ),
                 rx.box(flex="1"),
                 rx.hstack(
                     rx.box(
-                        rx.icon("settings", size=14, color=colors["textMuted"]),
+                        rx.icon("settings", size=14, color=colors["text_muted"]),
                         on_click=lambda client_id=str(client.get("id", "")): AppState.open_client_modal(client_id),
                         style={
                             "padding": "6px",
@@ -272,28 +210,28 @@ def _empty_state() -> rx.Component:
                 rx.icon(
                     "users",
                     size=64,
-                    color=colors["textMuted"]
+                    color=colors["text_muted"]
                 ),
                 style={
                     "padding": "24px",
-                    "background": f"{colors['textMuted']}10",
+                    "background": f"{colors['text_muted']}10",
                     "border_radius": "50%",
-                    "border": f"1px solid {colors['textMuted']}20"
+                    "border": f"1px solid {colors['text_muted']}20"
                 }
             ),
             rx.text(
                 "No clients found",
                 style={
-                    **get_modern_text_styles(colors, "subheading"),
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                     "font_weight": "600",
-                    "color": colors["textMuted"]
+                    "color": colors["text_muted"]
                 }
             ),
             rx.text(
                 "Add your first client to get started",
                 style={
-                    **get_modern_text_styles(colors, "body"),
-                    "color": colors["textMuted"],
+                    **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                    "color": colors["text_muted"],
                     "text_align": "center"
                 }
             ),
@@ -301,16 +239,14 @@ def _empty_state() -> rx.Component:
                 rx.text(
                     "Add Client",
                     style={
-                        **get_modern_text_styles(colors, "body"),
+                        **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                         "color": colors["primary"],
                         "font_weight": "500"
                     }
                 ),
                 on_click=lambda: AppState.open_client_modal(""),
                 style={
-                    **get_modern_button_styles(),
-                    **get_button_variant("outline"),
-                    **get_button_size("md"),
+                    **get_button_styles(variant="outline", size="md"),
                     "display": "flex",
                     "align_items": "center",
                     "justify_content": "center",
@@ -352,15 +288,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Total Clients",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.clients_stats["total"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["primary"]
@@ -385,15 +321,15 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Active Clients",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.clients_stats["active"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
                                 "color": colors["success"]
@@ -418,25 +354,25 @@ def _stats_summary() -> rx.Component:
                         rx.text(
                             "Inactive Clients",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textMuted"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_muted"],
                                 "font_weight": "500"
                             }
                         ),
                         rx.text(
                             AppState.clients_stats["inactive"],
                             style={
-                                **get_modern_text_styles(colors, "heading"),
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                                 "font_size": "24px",
                                 "font_weight": "700",
-                                "color": colors["textMuted"]
+                                "color": colors["text_muted"]
                             }
                         ),
                         align="start",
                         spacing="1",
                         flex="1"
                     ),
-                    rx.icon("user", size=24, color=colors["textMuted"]),
+                    rx.icon("user", size=24, color=colors["text_muted"]),
                     justify="between",
                     align="center",
                     width="100%"
@@ -460,7 +396,7 @@ def ClientsView() -> rx.Component:
                     rx.text(
                         "Client Management",
                         style={
-                            **get_modern_text_styles(colors, "heading"),
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
                             "font_size": "28px",
                             "font_weight": "700"
                         }
@@ -468,8 +404,8 @@ def ClientsView() -> rx.Component:
                     rx.text(
                         "Manage your client relationships and contact information.",
                         style={
-                            **get_modern_text_styles(colors, "body"),
-                            "color": colors["textMuted"]
+                            **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                            "color": colors["text_muted"]
                         }
                     ),
                     align="start",
@@ -477,12 +413,12 @@ def ClientsView() -> rx.Component:
                 ),
                 rx.box(
                     rx.hstack(
-                        rx.icon("download", size=16, color=colors["textSecondary"]),
+                        rx.icon("download", size=16, color=colors["text_secondary"]),
                         rx.text(
                             "Export",
                             style={
-                                **get_modern_text_styles(colors, "body"),
-                                "color": colors["textSecondary"],
+                                **get_text_styles(size=typography["sizes"]["md"], color=colors["text_primary"]),
+                                "color": colors["text_secondary"],
                                 "font_weight": "500"
                             }
                         ),
@@ -490,9 +426,7 @@ def ClientsView() -> rx.Component:
                         align="center"
                     ),
                     style={
-                        **get_modern_button_styles(),
-                        **get_button_variant("ghost"),
-                        **get_button_size("sm"),
+                        **get_button_styles(variant="ghost", size="sm"),
                         "display": "flex",
                         "align_items": "center",
                         "justify_content": "center"

@@ -5,9 +5,9 @@ from ..shared.button import Button
 from .form_field import FormField
 from .form_container import FormContainer
 from ..shared.text import Text
-from ...utils.styles.colorPallet import ColorPallet
+from ...utils.styles import colors, spacing, typography
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def LoginForm(show_logo: bool = False) -> rx.Component:
     """Modern login form using new component architecture."""
@@ -18,8 +18,8 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
         
         # Username field
         FormField(
-            label="Username",
-            placeholder="Enter your username",
+            label="Nombre",
+            placeholder="Introduce tu nombre de usuario",
             value=AuthState.nickname,
             on_change=AuthState.set_nickname,
             type_="text",
@@ -30,9 +30,9 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
         # Password field with forgot password link
         rx.vstack(
             rx.hstack(
-                Text("Password*", variant="small", color="primary", weight="medium"),
+                Text("Contraseña", variant="small", color="primary", weight="medium"),
                 rx.link(
-                    "Forgot password?",
+                    "¿Has olvidado tu contraseña?",
                     href="#",
                     style={
                         "font_size": "13px",
@@ -40,7 +40,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
                         "text_decoration": "none",
                         "transition": "color 0.2s ease",
                         "_hover": {
-                            "color": colors["primaryHover"],
+                            "color": colors["primary_hover"],
                             "text_decoration": "underline"
                         }
                     }
@@ -51,7 +51,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
             ),
             FormField(
                 label="",  # Empty since handled above
-                placeholder="Enter your password",
+                placeholder="Introduce tu contraseña",
                 value=AuthState.password,
                 on_change=AuthState.set_password,
                 type_="password",
@@ -65,7 +65,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
         
         # Login button
         Button(
-            "Sign In",
+            "Inicia sesión",
             variant="primary",
             size="lg",
             width="100%",
@@ -77,7 +77,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
         # Register link
         rx.center(
             rx.hstack(
-                Text("Don't have an account?", variant="body", color="secondary"),
+                Text("¿No tienes cuenta?", variant="body", color="secondary"),
                 rx.link(
                     "Sign up",
                     href="#",
@@ -87,7 +87,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
                         "text_decoration": "none",
                         "transition": "color 0.2s ease",
                         "_hover": {
-                            "color": colors["primaryHover"],
+                            "color": colors["primary_hover"],
                             "text_decoration": "underline"
                         }
                     }
@@ -99,7 +99,7 @@ def LoginForm(show_logo: bool = False) -> rx.Component:
             margin_top="16px"
         ),
         
-        title="Welcome Back",
-        subtitle="Sign in to your account to continue",
+        title="Bienvenido",
+        subtitle="Inicia sesión en tu cuenta para continuar",
         max_width="420px"
     )

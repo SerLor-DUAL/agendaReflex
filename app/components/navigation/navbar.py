@@ -1,18 +1,29 @@
 import reflex as rx
-from ...utils.styles.colorPallet import ColorPallet
-from ...utils.styles.modern_styles import get_modern_navbar_styles
+from ...utils.styles import colors, spacing, typography, get_card_styles, get_button_styles
 from ...state.auth_state import AuthState
 from ...state.page_state import PageState
 from .logo import Logo
 from .auth_buttons import AuthButtons
 from ..navigation.user_menu import UserMenu
 
-colors = ColorPallet().colors
+# Colors now imported directly from design system
 
 def Navbar(company_name: str = "IntegraQS") -> rx.Component:
     """Modern minimalist navbar with perfect alignment."""
     
-    navbar_styles = get_modern_navbar_styles()
+    # Create navbar styles using available style functions
+    navbar_styles = {
+        **get_card_styles(variant="outline", padding="0"),
+        "position": "fixed",
+        "top": "0",
+        "left": "0",
+        "right": "0",
+        "z_index": "1000",
+        "backdrop_filter": "blur(10px)",
+        "background": colors["surface"],
+        "border_bottom": f"1px solid {colors['border']}",
+        "border_radius": "0"  # Override card border radius for navbar
+    }
     
     # Desktop navbar
     desktop_nav = rx.flex(
